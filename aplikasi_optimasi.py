@@ -27,7 +27,7 @@ for i in range(num_products):
         profit = st.number_input(f"Keuntungan/unit {name}", value=10.0, key=f"profit_{i}")
     with col3:
         cons = st.number_input(f"Sumber Daya/unit {name}", value=1.0, key=f"cons_{i}")
-    
+
     product_names.append(name)
     profits.append(profit)
     constraints.append(cons)
@@ -35,6 +35,16 @@ for i in range(num_products):
 # Input total sumber daya tersedia
 st.header("⚙️ Batasan Sumber Daya")
 total_resource = st.number_input("Total Sumber Daya Tersedia", value=100.0, step=1.0)
+
+# Tampilkan perhitungan awal
+st.header("🧮 Proses Perhitungan")
+st.markdown("### Fungsi Objektif")
+obj_func = "Z = " + " + ".join([f"{profits[i]}×{product_names[i]}" for i in range(num_products)])
+st.latex(obj_func)
+
+st.markdown("### Kendala")
+constraints_expr = " + ".join([f"{constraints[i]}×{product_names[i]}" for i in range(num_products)]) + f" \leq {total_resource}"
+st.latex(constraints_expr)
 
 # Optimasi langsung tanpa tombol
 c = [-p for p in profits]
