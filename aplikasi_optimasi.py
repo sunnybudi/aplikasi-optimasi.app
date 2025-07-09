@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import linprog
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 st.set_page_config(page_title="Optimasi Produksi", layout="wide")
 st.title("👷‍♂️ Optimasi Produksi Berdasarkan Operator & Mesin")
@@ -85,7 +86,7 @@ if st.button("🚀 Jalankan Optimasi"):
         csv = df_hasil.to_csv(index=False).encode()
         st.download_button("⬇️ Unduh Hasil sebagai CSV", csv, file_name="hasil_optimasi.csv", mime="text/csv")
 
-        # Visualisasi (hanya jika 2 produk)
+        # Visualisasi Area Feasible (hanya jika 2 produk)
         if num_products == 2:
             st.subheader("📈 Visualisasi Area Feasible (2 Produk)")
             fig, ax = plt.subplots()
@@ -97,18 +98,66 @@ if st.button("🚀 Jalankan Optimasi"):
             y1 = (total_operator - a1_op * x) / a2_op if a2_op != 0 else np.full_like(x, np.inf)
             y2 = (total_machine - a1_mc * x) / a2_mc if a2_mc != 0 else np.full_like(x, np.inf)
 
-            ax.plot(x, y1, label="Batas Operator")
-            ax.plot(x, y2, label="Batas Mesin")
-
+            y1 = np.maximum(y1, 0)
+            y2 = np.maximum(y2, 0)
             y_feasible = np.minimum(y1, y2)
-            y_feasible = np.maximum(y_feasible, 0)
-            ax.fill_between(x, 0, y_feasible, color='gray', alpha=0.3)
 
+            ax.plot(x, y1, label="Batas Operator", linestyle='--', color='blue')
+            ax.plot(x, y2, label="Batas Mesin", linestyle='--', color='orange')
+            ax.fill_between(x, 0, y_feasible, color='lightgray', alpha=0.5, label="Area Feasible")
             ax.plot(produk_optimal[0], produk_optimal[1], 'ro', label="Solusi Optimal")
+
             ax.set_xlabel(product_names[0])
             ax.set_ylabel(product_names[1])
             ax.set_title("Area Feasible & Solusi Optimal")
             ax.legend()
+            ax.grid(True)
             st.pyplot(fig)
+
+        # ===============================
+        # Diagram Batang: Produksi vs Keuntungan
+        # ===============================
+        st.subheader("📊 Diagram Perbandingan Produksi dan Keuntungan per Produk")
+
+        total_keuntungan_per_produk = np.multiply(produk_optimal, profits)
+        kategori = product_names + ['Total']
+        jumlah_unit = list(produk_optimal) + [np.sum(produk_optimal)]
+        total_untung = list(total_keuntungan_per_produk) + [np.sum(total_keuntungan_per_produk)]
+
+        x_pos = np.arange(len(kategori))
+        width = 0.35
+
+        fig2, ax2 = plt.subplots(figsize=(10, 5))
+        bar1 = ax2.bar(x_pos - width/2, total_untung, width=width, color='skyblue', label='Total Keuntungan')
+        bar2 = ax2.bar(x_pos + width/2, jumlah_unit, width=width, color='lightgreen', label='Jumlah Produksi Optimal')
+
+        max_val = max(total_untung + jumlah_unit)
+        ax2.set_ylim(0, max_val * 1.3)
+
+        for bars in [bar1, bar2]:
+            for bar in bars:
+                value = bar.get_height()
+                text = f"{value:,.0f}".replace(",", ".")
+                ax2.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    value + (max_val * 0.03),
+                    text,
+                    ha='center', va='bottom',
+                    fontsize=9,
+                    color='black',
+                    fontweight='bold'
+                )
+
+        ax2.set_ylabel("Rupiah / Unit", fontsize=10)
+        ax2.set_xlabel("Produk", fontsize=10)
+        ax2.set_title("Perbandingan Produksi Optimal dan Keuntungan", fontsize=12)
+        ax2.set_xticks(x_pos)
+        ax2.set_xticklabels(kategori, fontsize=10)
+        ax2.legend(fontsize=10)
+        ax2.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
+
+        plt.tight_layout()
+        st.pyplot(fig2)
+
     else:
         st.error("❌ Optimasi gagal. Periksa input atau kendala.")
