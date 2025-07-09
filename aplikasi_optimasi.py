@@ -3,11 +3,17 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import linprog
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 st.set_page_config(page_title="Optimasi Produksi - Maksimalkan Keuntungan", layout="wide")
 st.title("📈 Optimasi Produksi - Maksimalkan Keuntungan")
 st.markdown("""
-Aplikasi ini membantu menentukan kombinasi produksi optimal untuk memaksimalkan keuntungan dengan mempertimbangkan batasan sumber daya (waktu, bahan baku, tenaga kerja).
+Aplikasi ini membantu menentukan kombinasi produksi optimal untuk memaksimalkan keuntungan berdasarkan batasan sumber daya (waktu, bahan baku, tenaga kerja).
+
+### Rumus Fungsi Objektif Umum:
+\[
+\text{Maximize } Z = \sum_{i=1}^{n} c_i X_i = c_1 X_1 + c_2 X_2 + \dots + c_n X_n
+\]
 """)
 
 # Input jumlah produk
@@ -39,11 +45,11 @@ total_resource = st.number_input("Total Sumber Daya Tersedia", value=100.0, step
 # Tampilkan perhitungan awal
 st.header("🧮 Proses Perhitungan")
 st.markdown("### Fungsi Objektif")
-obj_func = "Z = " + " + ".join([f"{profits[i]}×{product_names[i]}" for i in range(num_products)])
+obj_func = "Z = " + " + ".join([f"{profits[i]}×X_{{{i+1}}}" for i in range(num_products)])
 st.latex(obj_func)
 
 st.markdown("### Kendala")
-constraints_expr = " + ".join([f"{constraints[i]}×{product_names[i]}" for i in range(num_products)]) + f" \leq {total_resource}"
+constraints_expr = " + ".join([f"{constraints[i]}×X_{{{i+1}}}" for i in range(num_products)]) + f" \leq {total_resource}"
 st.latex(constraints_expr)
 
 # Optimasi langsung tanpa tombol
