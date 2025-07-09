@@ -1,77 +1,96 @@
 import streamlit as st
+import numpy as np
+import pandas as pd
 from scipy.optimize import linprog
 import matplotlib.pyplot as plt
-import numpy as np
 
-st.set_page_config(page_title="Optimasi Produksi Sederhana", layout="centered")
-st.title("🧮 Optimasi Produksi Sederhana (2 Produk)")
-
+st.set_page_config(page_title="Optimasi Produksi Mahasiswa", layout="wide")
+st.title("📈 Optimasi Produksi Multi-Produk")
 st.markdown("""
-Aplikasi ini memaksimalkan keuntungan produksi 2 produk dengan rumus:
+Aplikasi ini digunakan untuk **memaksimalkan keuntungan** dari produksi dua atau lebih produk, dengan mempertimbangkan keterbatasan sumber daya seperti waktu, bahan baku, atau tenaga kerja.
 
+### Rumus Fungsi Objektif:
 \[
-\\text{Maximize } Z = c_1X + c_2Y
+Z = c_1X_1 + c_2X_2 + \dots + c_nX_n
 \]
-
 dengan kendala:
-
 \[
-a_1X + a_2Y \\leq R
+a_1X_1 + a_2X_2 + \dots + a_nX_n \leq R
 \]
 """)
 
-# Input pengguna
-st.subheader("📦 Input Parameter")
+# Input jumlah produk
+st.sidebar.header("📦 Input Jumlah Produk")
+num_products = st.sidebar.number_input("Jumlah Produk", min_value=2, value=2, step=1)
 
-c1 = st.number_input("Keuntungan/unit Produk X (c₁)", value=20.0)
-c2 = st.number_input("Keuntungan/unit Produk Y (c₂)", value=30.0)
+# Input parameter produk
+st.sidebar.header("📥 Input Data Produk")
+product_names = []
+profits = []
+resource_per_unit = []
 
-a1 = st.number_input("Sumber daya/unit Produk X (a₁)", value=4.0)
-a2 = st.number_input("Sumber daya/unit Produk Y (a₂)", value=3.0)
+for i in range(num_products):
+    st.sidebar.subheader(f"Produk {i+1}")
+    name = st.sidebar.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"name_{i}")
+    profit = st.sidebar.number_input(f"Keuntungan/unit {name}", value=10.0, step=1.0, key=f"profit_{i}")
+    usage = st.sidebar.number_input(f"Sumber Daya/unit {name}", value=1.0, step=1.0, key=f"usage_{i}")
+    
+    product_names.append(name)
+    profits.append(profit)
+    resource_per_unit.append(usage)
 
-R = st.number_input("Total Sumber Daya Tersedia (R)", value=120.0)
+# Input total sumber daya
+st.sidebar.header("⚙️ Total Sumber Daya")
+total_resource = st.sidebar.number_input("Total Sumber Daya Tersedia", value=100.0, step=1.0)
 
-# Tampilkan fungsi objektif dan kendala
-st.markdown("### 🔢 Rumus Dihitung")
-st.latex(f"Z = {c1}X + {c2}Y")
-st.latex(f"{a1}X + {a2}Y \\leq {R}")
+# Fungsi objektif dan kendala
+c = [-p for p in profits]  # Negatif karena linprog = minimisasi
+A = [resource_per_unit]
+b = [total_resource]
+bounds = [(0, None)] * num_products
 
-# Hitung optimasi
-c = [-c1, -c2]
-A = [[a1, a2]]
-b = [R]
-bounds = [(0, None), (0, None)]
-
+# Solusi optimasi
 result = linprog(c=c, A_ub=A, b_ub=b, bounds=bounds, method="highs")
 
-# Tampilkan hasil
+st.header("📊 Hasil Optimasi Produksi")
 if result.success:
-    x_opt, y_opt = np.round(result.x, 2)
-    z_max = round(-result.fun, 2)
+    produk_optimal = np.round(result.x, 2)
+    keuntungan_total = -result.fun
 
-    st.success("✅ Solusi Optimal Ditemukan:")
-    st.write(f"📦 Jumlah Produksi X = {x_opt}")
-    st.write(f"📦 Jumlah Produksi Y = {y_opt}")
-    st.write(f"💰 Total Keuntungan Maksimum Z = Rp {z_max:,.2f}")
+    df_hasil = pd.DataFrame({
+        "Produk": product_names,
+        "Jumlah Produksi Optimal": produk_optimal,
+        "Keuntungan/unit": profits,
+        "Total Keuntungan": np.round(produk_optimal * profits, 2)
+    })
 
-    # Visualisasi solusi
-    st.subheader("📊 Visualisasi Area Feasible dan Solusi Optimal")
-    x_vals = np.linspace(0, R / a1, 200)
-    y_vals = (R - a1 * x_vals) / a2
+    st.dataframe(df_hasil)
+    st.success(f"💰 Total Keuntungan Maksimum: Rp {keuntungan_total:,.2f}")
 
+    # Visualisasi batang
+    st.subheader("📉 Visualisasi Produksi Optimal")
     fig, ax = plt.subplots()
-    ax.plot(x_vals, y_vals, label="Kendala", color='blue')
-    ax.fill_between(x_vals, 0, y_vals, where=(y_vals >= 0), color='gray', alpha=0.3)
-    ax.plot(x_opt, y_opt, 'ro', label="Solusi Optimal")
-
-    ax.set_xlim(left=0)
-    ax.set_ylim(bottom=0)
-    ax.set_xlabel("Jumlah Produk X")
-    ax.set_ylabel("Jumlah Produk Y")
-    ax.set_title("Area Feasible & Solusi Optimal")
-    ax.legend()
-    ax.grid(True)
-
+    ax.bar(product_names, produk_optimal, color='skyblue')
+    ax.set_ylabel("Jumlah Produksi")
+    ax.set_title("Produksi Optimal per Produk")
+    for i, v in enumerate(produk_optimal):
+        ax.text(i, v + 0.5, f"{v:.2f}", ha='center')
     st.pyplot(fig)
+
+    # Visualisasi area feasible (jika hanya 2 produk)
+    if num_products == 2:
+        st.subheader("📐 Visualisasi Area Feasible (2 Produk)")
+        x_vals = np.linspace(0, total_resource / resource_per_unit[0], 200)
+        y_vals = (total_resource - resource_per_unit[0] * x_vals) / resource_per_unit[1]
+
+        fig2, ax2 = plt.subplots()
+        ax2.plot(x_vals, y_vals, label="Kendala Sumber Daya", color='orange')
+        ax2.fill_between(x_vals, 0, y_vals, where=(y_vals >= 0), color='gray', alpha=0.3)
+        ax2.plot(produk_optimal[0], produk_optimal[1], 'ro', label="Solusi Optimal")
+        ax2.set_xlabel(product_names[0])
+        ax2.set_ylabel(product_names[1])
+        ax2.set_title("Area Feasible dan Solusi Optimal")
+        ax2.legend()
+        st.pyplot(fig2)
 else:
-    st.error("❌ Optimasi gagal. Silakan cek kembali input Anda.")
+    st.error("❌ Optimasi gagal. Coba periksa kembali input Anda.")
