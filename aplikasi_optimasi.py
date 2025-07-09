@@ -75,3 +75,40 @@ if st.button("🚀 Jalankan Optimasi"):
             "Produk": product_names,
             "Jumlah Optimal": produk_optimal,
             "Keuntungan per Unit": profits,
+            "Total Keuntungan Produk": np.round(np.multiply(produk_optimal, profits), 2)
+        })
+
+        st.dataframe(df_hasil)
+        st.subheader("💰 Total Keuntungan Maksimum: Rp {:,.2f}".format(keuntungan_total))
+
+        # Simpan hasil ke CSV
+        csv = df_hasil.to_csv(index=False).encode()
+        st.download_button("⬇️ Unduh Hasil sebagai CSV", csv, file_name="hasil_optimasi.csv", mime="text/csv")
+
+        # Visualisasi (hanya jika 2 produk)
+        if num_products == 2:
+            st.subheader("📈 Visualisasi Area Feasible (2 Produk)")
+            fig, ax = plt.subplots()
+            x = np.linspace(0, max(b) * 1.2, 400)
+
+            a1_op, a2_op = operator_per_unit
+            a1_mc, a2_mc = machine_per_unit
+
+            y1 = (total_operator - a1_op * x) / a2_op if a2_op != 0 else np.full_like(x, np.inf)
+            y2 = (total_machine - a1_mc * x) / a2_mc if a2_mc != 0 else np.full_like(x, np.inf)
+
+            ax.plot(x, y1, label="Batas Operator")
+            ax.plot(x, y2, label="Batas Mesin")
+
+            y_feasible = np.minimum(y1, y2)
+            y_feasible = np.maximum(y_feasible, 0)
+            ax.fill_between(x, 0, y_feasible, color='gray', alpha=0.3)
+
+            ax.plot(produk_optimal[0], produk_optimal[1], 'ro', label="Solusi Optimal")
+            ax.set_xlabel(product_names[0])
+            ax.set_ylabel(product_names[1])
+            ax.set_title("Area Feasible & Solusi Optimal")
+            ax.legend()
+            st.pyplot(fig)
+    else:
+        st.error("❌ Optimasi gagal. Periksa input atau kendala.")
