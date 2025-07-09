@@ -1,96 +1,114 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-from scipy.optimize import linprog
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
-st.set_page_config(page_title="Optimasi Produksi Mahasiswa", layout="wide")
-st.title("📈 Optimasi Produksi Multi-Produk")
+st.set_page_config(page_title="Optimasi Produksi Dinamis", layout="wide")
+st.title("📈 Optimasi Produksi - Maksimalkan Keuntungan (Multi Produk)")
+
 st.markdown("""
-Aplikasi ini digunakan untuk **memaksimalkan keuntungan** dari produksi dua atau lebih produk, dengan mempertimbangkan keterbatasan sumber daya seperti waktu, bahan baku, atau tenaga kerja.
+Aplikasi ini membantu menentukan kombinasi produksi optimal untuk memaksimalkan keuntungan dari **dua atau lebih produk**.
 
-### Rumus Fungsi Objektif:
-\[
-Z = c_1X_1 + c_2X_2 + \dots + c_nX_n
-\]
-dengan kendala:
-\[
-a_1X_1 + a_2X_2 + \dots + a_nX_n \leq R
-\]
+### Rumus Umum:
+\\[
+Z = \\sum_{i=1}^{n} c_i X_i = c_1 X_1 + c_2 X_2 + \\dots + c_n X_n
+\\]
 """)
 
-# Input jumlah produk
-st.sidebar.header("📦 Input Jumlah Produk")
-num_products = st.sidebar.number_input("Jumlah Produk", min_value=2, value=2, step=1)
+# ==============================
+# Input Jumlah Produk dan Data
+# ==============================
+num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
 
-# Input parameter produk
-st.sidebar.header("📥 Input Data Produk")
 product_names = []
+quantities = []
 profits = []
-resource_per_unit = []
+prices = []
+
+st.header("📦 Input Data Tiap Produk")
 
 for i in range(num_products):
-    st.sidebar.subheader(f"Produk {i+1}")
-    name = st.sidebar.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"name_{i}")
-    profit = st.sidebar.number_input(f"Keuntungan/unit {name}", value=10.0, step=1.0, key=f"profit_{i}")
-    usage = st.sidebar.number_input(f"Sumber Daya/unit {name}", value=1.0, step=1.0, key=f"usage_{i}")
+    st.subheader(f"Produk {i+1}")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"name_{i}")
+    with col2:
+        qty = st.number_input(f"Jumlah Produksi {name}", value=0, step=1, key=f"qty_{i}")
+    with col3:
+        profit = st.number_input(f"Keuntungan/unit {name}", value=0, step=1, key=f"profit_{i}")
+    with col4:
+        price = st.number_input(f"Harga Jual {name}", value=0, step=1, key=f"price_{i}")
     
     product_names.append(name)
+    quantities.append(qty)
     profits.append(profit)
-    resource_per_unit.append(usage)
+    prices.append(price)
 
-# Input total sumber daya
-st.sidebar.header("⚙️ Total Sumber Daya")
-total_resource = st.sidebar.number_input("Total Sumber Daya Tersedia", value=100.0, step=1.0)
+# ==============================
+# Perhitungan Total Keuntungan & Penjualan
+# ==============================
 
-# Fungsi objektif dan kendala
-c = [-p for p in profits]  # Negatif karena linprog = minimisasi
-A = [resource_per_unit]
-b = [total_resource]
-bounds = [(0, None)] * num_products
+total_profit_per_product = [quantities[i] * profits[i] for i in range(num_products)]
+total_sales_per_product = [quantities[i] * prices[i] for i in range(num_products)]
+total_profit = sum(total_profit_per_product)
+total_sales = sum(total_sales_per_product)
 
-# Solusi optimasi
-result = linprog(c=c, A_ub=A, b_ub=b, bounds=bounds, method="highs")
+# ==============================
+# Tampilkan Fungsi Z
+# ==============================
+st.header("🧮 Fungsi Objektif dan Total Keuntungan")
 
-st.header("📊 Hasil Optimasi Produksi")
-if result.success:
-    produk_optimal = np.round(result.x, 2)
-    keuntungan_total = -result.fun
+latex_str = "Z = " + " + ".join([f"{profits[i]}\\times{quantities[i]}" for i in range(num_products)])
+latex_str += f" = {total_profit}"
+st.latex(latex_str)
 
-    df_hasil = pd.DataFrame({
-        "Produk": product_names,
-        "Jumlah Produksi Optimal": produk_optimal,
-        "Keuntungan/unit": profits,
-        "Total Keuntungan": np.round(produk_optimal * profits, 2)
-    })
+# ==============================
+# Tabel Ringkasan
+# ==============================
+st.header("📊 Ringkasan Produksi")
 
-    st.dataframe(df_hasil)
-    st.success(f"💰 Total Keuntungan Maksimum: Rp {keuntungan_total:,.2f}")
+df = pd.DataFrame({
+    "Produk": product_names,
+    "Jumlah Produksi": quantities,
+    "Keuntungan/Unit": profits,
+    "Total Keuntungan": total_profit_per_product,
+    "Harga Jual": prices,
+    "Total Penjualan": total_sales_per_product
+})
 
-    # Visualisasi batang
-    st.subheader("📉 Visualisasi Produksi Optimal")
-    fig, ax = plt.subplots()
-    ax.bar(product_names, produk_optimal, color='skyblue')
-    ax.set_ylabel("Jumlah Produksi")
-    ax.set_title("Produksi Optimal per Produk")
-    for i, v in enumerate(produk_optimal):
-        ax.text(i, v + 0.5, f"{v:.2f}", ha='center')
-    st.pyplot(fig)
+st.dataframe(df, use_container_width=True)
 
-    # Visualisasi area feasible (jika hanya 2 produk)
-    if num_products == 2:
-        st.subheader("📐 Visualisasi Area Feasible (2 Produk)")
-        x_vals = np.linspace(0, total_resource / resource_per_unit[0], 200)
-        y_vals = (total_resource - resource_per_unit[0] * x_vals) / resource_per_unit[1]
+# ==============================
+# Visualisasi: Grafik Batang
+# ==============================
+st.subheader("📈 Grafik Perbandingan Total Penjualan dan Keuntungan")
 
-        fig2, ax2 = plt.subplots()
-        ax2.plot(x_vals, y_vals, label="Kendala Sumber Daya", color='orange')
-        ax2.fill_between(x_vals, 0, y_vals, where=(y_vals >= 0), color='gray', alpha=0.3)
-        ax2.plot(produk_optimal[0], produk_optimal[1], 'ro', label="Solusi Optimal")
-        ax2.set_xlabel(product_names[0])
-        ax2.set_ylabel(product_names[1])
-        ax2.set_title("Area Feasible dan Solusi Optimal")
-        ax2.legend()
-        st.pyplot(fig2)
-else:
-    st.error("❌ Optimasi gagal. Coba periksa kembali input Anda.")
+kategori = product_names + ["Total"]
+penjualan = total_sales_per_product + [total_sales]
+keuntungan = total_profit_per_product + [total_profit]
+
+x_pos = np.arange(len(kategori))
+width = 0.35
+fig, ax = plt.subplots(figsize=(10, 5))
+
+bar1 = ax.bar(x_pos - width/2, keuntungan, width=width, color='skyblue', label='Keuntungan')
+bar2 = ax.bar(x_pos + width/2, penjualan, width=width, color='lightgreen', label='Penjualan')
+
+max_val = max(penjualan + keuntungan)
+ax.set_ylim(0, max_val * 1.2)
+
+for bars in [bar1, bar2]:
+    for bar in bars:
+        val = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, val + max_val * 0.03, f"{val:,.0f}".replace(",", "."), 
+                ha='center', va='bottom', fontsize=9, fontweight='bold')
+
+ax.set_ylabel("Rupiah")
+ax.set_title("Perbandingan Penjualan dan Keuntungan")
+ax.set_xticks(x_pos)
+ax.set_xticklabels(kategori)
+ax.legend()
+ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
+
+st.pyplot(fig)
