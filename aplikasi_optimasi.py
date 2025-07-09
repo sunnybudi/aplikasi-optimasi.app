@@ -13,43 +13,42 @@ st.markdown("Aplikasi ini menghitung kombinasi produksi produk untuk memaksimalk
 # -------------------------
 # Penjelasan Model Matematika
 # -------------------------
-with st.expander("📘 Penjelasan Model Matematika (Klik untuk lihat rumus)"):
-    st.markdown(r"""
-    ### 🧮 Model Optimasi Produksi
+st.markdown(r"""
+### 🧮 Model Optimasi Produksi
 
-    Model ini menggunakan *Linear Programming* untuk memaksimalkan keuntungan dengan kendala jumlah operator dan mesin yang terbatas.
+Model ini menggunakan *Linear Programming* untuk memaksimalkan keuntungan dengan kendala jumlah operator dan mesin yang terbatas.
 
-    #### 🎯 Fungsi Objektif (Tujuan)
-    Maksimalkan total keuntungan:
-    $$
-    \text{Maksimalkan } Z = p_1x_1 + p_2x_2 + \dots + p_nx_n
-    $$
-    di mana:
-    - \( Z \) = total keuntungan maksimum
-    - \( x_i \) = jumlah unit produk ke-\(i\) yang diproduksi
-    - \( p_i \) = keuntungan per unit produk ke-\(i\)
+#### 🎯 Fungsi Objektif (Tujuan)
+Maksimalkan total keuntungan:
+$$
+\text{Maksimalkan } Z = p_1x_1 + p_2x_2 + \dots + p_nx_n
+$$
+di mana:
+- \( Z \) = total keuntungan maksimum  
+- \( x_i \) = jumlah unit produk ke-\(i\) yang diproduksi  
+- \( p_i \) = keuntungan per unit produk ke-\(i\)
 
-    #### 🔒 Kendala:
-    **1. Operator:**
-    $$
-    a_{1,1}x_1 + a_{1,2}x_2 + \dots + a_{1,n}x_n \leq O
-    $$
-    **2. Mesin:**
-    $$
-    a_{2,1}x_1 + a_{2,2}x_2 + \dots + a_{2,n}x_n \leq M
-    $$
+#### 🔒 Kendala:
+**1. Operator:**
+$$
+a_{1,1}x_1 + a_{1,2}x_2 + \dots + a_{1,n}x_n \leq O
+$$
+**2. Mesin:**
+$$
+a_{2,1}x_1 + a_{2,2}x_2 + \dots + a_{2,n}x_n \leq M
+$$
 
-    #### ⛓️ Batasan Non-Negatif:
-    $$
-    x_1, x_2, \dots, x_n \geq 0
-    $$
+#### ⛓️ Batasan Non-Negatif:
+$$
+x_1, x_2, \dots, x_n \geq 0
+$$
 
-    #### 📌 Keterangan:
-    - \( a_{1,i} \): jumlah operator untuk satu unit produk ke-\(i\)
-    - \( a_{2,i} \): jumlah mesin untuk satu unit produk ke-\(i\)
-    - \( O \): total operator tersedia
-    - \( M \): total mesin tersedia
-    """)
+#### 📌 Keterangan:
+- \( a_{1,i} \): jumlah operator untuk satu unit produk ke-\(i\)  
+- \( a_{2,i} \): jumlah mesin untuk satu unit produk ke-\(i\)  
+- \( O \): total operator tersedia  
+- \( M \): total mesin tersedia
+""")
 
 # -------------------------
 # Input Produk & Keuntungan
