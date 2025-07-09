@@ -5,110 +5,98 @@ from scipy.optimize import linprog
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Optimasi Produksi", layout="wide")
-st.title("📦 Optimasi Produksi dengan Kendala Waktu, Bahan Baku, dan Tenaga Kerja")
+st.title("📊 Optimasi Produksi: Kendala Waktu & Operator")
 
 st.markdown("""
-Aplikasi ini menentukan kombinasi produksi optimal untuk memaksimalkan keuntungan berdasarkan batasan waktu, bahan baku, dan tenaga kerja.
-
-### Fungsi Objektif:
-\[
-\text{Maximize } Z = c_1X_1 + c_2X_2 + \dots + c_nX_n
-\]
-
-### Kendala:
-\[
-\sum (a_{ij} X_j) \leq b_i \quad \text{untuk tiap sumber daya } i
-\]
+Aplikasi ini membantu menentukan kombinasi produksi optimal untuk **memaksimalkan keuntungan** berdasarkan kendala:
+- ⏱️ Waktu (jam kerja total)
+- 👷 Jumlah operator yang tersedia
 """)
 
-# ------------------------------
+# -------------------------------
 # Input jumlah produk
-# ------------------------------
-num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
+# -------------------------------
+num_products = st.number_input("🔢 Jumlah Produk", min_value=2, value=2, step=1, key="num_products")
 
-product_names = []
-profits = []
-time_per_unit = []
-material_per_unit = []
-labor_per_unit = []
+# Reset semua variabel input terkait jumlah produk
+if 'data_inputs' not in st.session_state or len(st.session_state.data_inputs) != num_products:
+    st.session_state.data_inputs = [
+        {
+            "name": f"Produk {i+1}",
+            "profit": 10.0,
+            "time_per_unit": 1.0,
+            "operator_per_unit": 1.0
+        }
+        for i in range(num_products)
+    ]
 
-st.header("📥 Input Data Produk")
+# -------------------------------
+# Input data produk
+# -------------------------------
+st.header("📦 Input Parameter Setiap Produk")
+
 for i in range(num_products):
-    st.subheader(f"Produk {i+1}")
-    col1, col2, col3, col4, col5 = st.columns(5)
-    with col1:
-        name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"name_{i}")
-    with col2:
-        profit = st.number_input(f"Keuntungan/unit {name}", value=10.0, key=f"profit_{i}")
-    with col3:
-        time = st.number_input(f"Jam Kerja/unit {name}", value=1.0, key=f"time_{i}")
-    with col4:
-        material = st.number_input(f"Bahan Baku/unit {name}", value=1.0, key=f"material_{i}")
-    with col5:
-        labor = st.number_input(f"Tenaga Kerja/unit {name}", value=1.0, key=f"labor_{i}")
+    with st.expander(f"Produk {i+1}", expanded=True):
+        st.session_state.data_inputs[i]["name"] = st.text_input("Nama Produk", st.session_state.data_inputs[i]["name"], key=f"name_{i}")
+        st.session_state.data_inputs[i]["profit"] = st.number_input("Keuntungan per Unit (Rp)", min_value=0.0, value=st.session_state.data_inputs[i]["profit"], key=f"profit_{i}")
+        st.session_state.data_inputs[i]["time_per_unit"] = st.number_input("Jam Kerja per Unit", min_value=0.0, value=st.session_state.data_inputs[i]["time_per_unit"], key=f"time_{i}")
+        st.session_state.data_inputs[i]["operator_per_unit"] = st.number_input("Operator per Unit", min_value=0.0, value=st.session_state.data_inputs[i]["operator_per_unit"], key=f"op_{i}")
 
-    product_names.append(name)
-    profits.append(profit)
-    time_per_unit.append(time)
-    material_per_unit.append(material)
-    labor_per_unit.append(labor)
-
-# ------------------------------
-# Input batasan sumber daya
-# ------------------------------
+# -------------------------------
+# Input batas sumber daya
+# -------------------------------
 st.header("⚙️ Batasan Sumber Daya")
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 with col1:
-    max_time = st.number_input("Total Jam Kerja Tersedia", value=100.0)
+    total_time = st.number_input("Total Jam Kerja Tersedia", value=100.0, step=1.0)
 with col2:
-    max_material = st.number_input("Total Bahan Baku Tersedia", value=100.0)
-with col3:
-    max_labor = st.number_input("Total Tenaga Kerja Tersedia", value=100.0)
+    total_operator = st.number_input("Total Operator Tersedia", value=80.0, step=1.0)
 
-# ------------------------------
-# Perhitungan Optimasi
-# ------------------------------
-st.header("🧮 Hasil Perhitungan")
+# -------------------------------
+# Hitung optimasi
+# -------------------------------
+st.header("🚀 Hasil Optimasi")
 
-# Fungsi objektif
+product_names = [p["name"] for p in st.session_state.data_inputs]
+profits = [p["profit"] for p in st.session_state.data_inputs]
+times = [p["time_per_unit"] for p in st.session_state.data_inputs]
+operators = [p["operator_per_unit"] for p in st.session_state.data_inputs]
+
+# Fungsi objektif (dikalikan -1 karena linprog meminimalkan)
 c = [-p for p in profits]
-
-# Matriks kendala (A) dan batasannya (b)
-A = [
-    time_per_unit,
-    material_per_unit,
-    labor_per_unit
-]
-b = [max_time, max_material, max_labor]
-bounds = [(0, None) for _ in range(num_products)]
+A = [times, operators]
+b = [total_time, total_operator]
+bounds = [(0, None)] * num_products
 
 # Optimasi
-result = linprog(c=c, A_ub=A, b_ub=b, bounds=bounds, method="highs")
+result = linprog(c, A_ub=A, b_ub=b, bounds=bounds, method='highs')
 
 if result.success:
-    produk_optimal = np.round(result.x, 2)
-    keuntungan_total = -result.fun
+    x_opt = np.round(result.x, 2)
+    total_profit = -result.fun
 
-    df_hasil = pd.DataFrame({
+    df = pd.DataFrame({
         "Produk": product_names,
-        "Jumlah Produksi Optimal": produk_optimal,
-        "Keuntungan/Unit": profits,
-        "Total Keuntungan": np.round(np.multiply(produk_optimal, profits), 2)
+        "Jumlah Produksi Optimal": x_opt,
+        "Keuntungan per Unit": profits,
+        "Total Keuntungan": np.round(np.multiply(x_opt, profits), 2)
     })
 
-    st.success("✅ Solusi optimal ditemukan!")
-    st.dataframe(df_hasil)
-    st.subheader(f"💰 Total Keuntungan Maksimum: Rp {keuntungan_total:,.2f}")
+    st.success("✅ Solusi Optimal Ditemukan!")
+    st.dataframe(df)
+    st.subheader(f"💰 Total Keuntungan Maksimum: Rp {total_profit:,.2f}")
 
-    # Visualisasi diagram batang
-    st.subheader("📊 Visualisasi Solusi Optimal")
-    fig, ax = plt.subplots(figsize=(8, 4))
-    bar = ax.bar(product_names, produk_optimal, color='skyblue')
-    ax.set_ylabel("Jumlah Produksi Optimal")
-    ax.set_title("Kombinasi Produksi Optimal")
-    for bar_ in bar:
-        height = bar_.get_height()
-        ax.text(bar_.get_x() + bar_.get_width()/2, height + 0.5, f"{height:.2f}", ha='center')
+    # -------------------------------
+    # Visualisasi Grafik
+    # -------------------------------
+    st.subheader("📊 Visualisasi Kombinasi Produksi")
+    fig, ax = plt.subplots(figsize=(10, 4))
+    bars = ax.bar(product_names, x_opt, color='lightblue')
+    for bar in bars:
+        yval = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2, yval + 0.5, f"{yval:.2f}", ha='center', fontsize=10)
+    ax.set_ylabel("Jumlah Produksi")
+    ax.set_title("Jumlah Produksi Optimal per Produk")
     st.pyplot(fig)
 else:
-    st.error("❌ Optimasi gagal. Periksa kembali input sumber daya atau parameter produk.")
+    st.error("❌ Optimasi gagal. Periksa input dan batasan.")
