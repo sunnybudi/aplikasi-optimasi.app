@@ -1,5 +1,3 @@
-#kodingan optimasi rev2
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -7,15 +5,16 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 st.set_page_config(page_title="Optimasi Produksi Dinamis", layout="wide")
-st.title("📈 Optimasi Produksi - Fungsi Objektif Dinamis")
+st.title("📈 Optimasi Produksi - Fungsi Objektif Dinamis dengan Tenaga Kerja")
 
 st.markdown("""
-Aplikasi ini menghitung total penjualan dan keuntungan dari beberapa produk dengan rumus:
+Aplikasi ini menghitung total penjualan dan keuntungan dari beberapa produk berdasarkan fungsi objektif:
 
 \[
 Z = c_1 X_1 + c_2 X_2 + \dots + c_n X_n
 \]
 
+Dan mempertimbangkan efisiensi tenaga kerja (operator/unit).
 """)
 
 # ==========================
@@ -27,11 +26,12 @@ product_names = []
 jumlah_produksi = []
 harga_jual = []
 laba_per_unit = []
+tenaga_kerja_unit = []
 
 st.subheader("📝 Input Data Produk")
 for i in range(num_products):
     st.markdown(f"### Produk {i+1}")
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1:
         name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"nama_{i}")
     with col2:
@@ -40,11 +40,20 @@ for i in range(num_products):
         harga = st.number_input(f"Harga Jual/unit", min_value=0, value=0, key=f"harga_{i}")
     with col4:
         laba = st.number_input(f"Keuntungan/unit", min_value=0, value=0, key=f"laba_{i}")
+    with col5:
+        tenaga = st.number_input(f"Tenaga Kerja/unit", min_value=1, value=1, key=f"tenaga_{i}")
 
     product_names.append(name)
     jumlah_produksi.append(qty)
     harga_jual.append(harga)
     laba_per_unit.append(laba)
+    tenaga_kerja_unit.append(tenaga)
+
+# ==========================
+# Input Total Operator
+# ==========================
+st.subheader("👷 Input Total Tenaga Kerja (Operator)")
+total_operator = st.number_input("Jumlah Total Operator Tersedia", min_value=1, value=100)
 
 # Fungsi format rupiah
 def format_rupiah(nilai):
@@ -57,10 +66,13 @@ total_penjualan = [harga_jual[i] * jumlah_produksi[i] for i in range(num_product
 total_keuntungan = [laba_per_unit[i] * jumlah_produksi[i] for i in range(num_products)]
 biaya_unit = [harga_jual[i] - laba_per_unit[i] for i in range(num_products)]
 total_biaya = [biaya_unit[i] * jumlah_produksi[i] for i in range(num_products)]
+operator_digunakan = [jumlah_produksi[i] * tenaga_kerja_unit[i] for i in range(num_products)]
+efisiensi_per_operator = [laba_per_unit[i] / tenaga_kerja_unit[i] for i in range(num_products)]
 
 total_all_penjualan = sum(total_penjualan)
 total_all_keuntungan = sum(total_keuntungan)
 total_all_biaya = sum(total_biaya)
+total_operator_digunakan = sum(operator_digunakan)
 
 # ==========================
 # Tampilan Hasil
@@ -71,23 +83,43 @@ df = pd.DataFrame({
     "Jumlah Produksi": jumlah_produksi,
     "Harga Jual/unit": harga_jual,
     "Keuntungan/unit": laba_per_unit,
+    "Tenaga Kerja/unit": tenaga_kerja_unit,
     "Total Penjualan": total_penjualan,
     "Total Keuntungan": total_keuntungan,
-    "Total Biaya Produksi": total_biaya
+    "Total Biaya Produksi": total_biaya,
+    "Total Operator Digunakan": operator_digunakan,
+    "Efisiensi/Operator": efisiensi_per_operator
 })
-st.dataframe(df.style.format({"Total Penjualan": "Rp {:,.0f}",
-                              "Total Keuntungan": "Rp {:,.0f}",
-                              "Total Biaya Produksi": "Rp {:,.0f}"}))
+st.dataframe(df.style.format({
+    "Total Penjualan": "Rp {:,.0f}",
+    "Total Keuntungan": "Rp {:,.0f}",
+    "Total Biaya Produksi": "Rp {:,.0f}",
+    "Efisiensi/Operator": "{:.2f}"
+}))
 
 st.markdown("### 💰 Total Ringkasan")
 st.write(f"📦 Total Penjualan: {format_rupiah(total_all_penjualan)}")
 st.write(f"💸 Total Biaya Produksi: {format_rupiah(total_all_biaya)}")
 st.write(f"✅ Total Keuntungan Bersih: {format_rupiah(total_all_keuntungan)}")
+st.write(f"👷 Total Operator Digunakan: {total_operator_digunakan} dari {total_operator} tersedia")
+
+# ==========================
+# Rekomendasi Produksi Optimal
+# ==========================
+st.subheader("📌 Rekomendasi Produksi Berdasarkan Efisiensi Operator")
+df_sort = df.copy()
+df_sort["Efisiensi/Operator"] = efisiensi_per_operator
+df_sort = df_sort.sort_values(by="Efisiensi/Operator", ascending=False)
+
+top_produk = df_sort.iloc[0]
+st.markdown(f"✅ **Produk yang paling efisien untuk diprioritaskan:** `{top_produk['Produk']}`")
+st.markdown(f"Efisiensi: {top_produk['Efisiensi/Operator']:.2f} keuntungan per operator")
 
 # ==========================
 # Grafik Batang
 # ==========================
 st.subheader("📊 Grafik Perbandingan")
+
 x_pos = np.arange(len(product_names))
 width = 0.35
 
