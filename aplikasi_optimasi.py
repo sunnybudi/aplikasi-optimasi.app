@@ -79,30 +79,31 @@ bounds = [(0, None) for _ in range(num_products)]
 
 result = linprog(c=c, A_ub=A, b_ub=b, bounds=bounds, method="highs")
 
+produk_optimal = np.round(result.x, 2) if result.x is not None else [0] * num_products
+keuntungan_total = -result.fun if result.fun is not None else 0
+
+df_hasil = pd.DataFrame({
+    "Produk": product_names,
+    "Jumlah Optimal": produk_optimal,
+    "Keuntungan/unit": profits,
+    "Total Keuntungan": np.round(np.multiply(produk_optimal, profits), 2)
+})
+
 if result.success:
-    produk_optimal = np.round(result.x, 2)
-    keuntungan_total = -result.fun
-
-    df_hasil = pd.DataFrame({
-        "Produk": product_names,
-        "Jumlah Optimal": produk_optimal,
-        "Keuntungan/unit": profits,
-        "Total Keuntungan": np.round(np.multiply(produk_optimal, profits), 2)
-    })
-
     st.success("✅ Solusi optimal ditemukan!")
-    st.dataframe(df_hasil)
-    st.subheader(f"💰 Total Keuntungan Maksimum: Rp {keuntungan_total:,.2f}")
-
-    # Visualisasi diagram batang
-    st.subheader("📊 Visualisasi Produksi Optimal")
-    fig, ax = plt.subplots()
-    bars = ax.bar(product_names, produk_optimal, color="skyblue")
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f"{height:.2f}", ha="center")
-    ax.set_ylabel("Jumlah Produksi Optimal")
-    ax.set_title("Kombinasi Produksi Optimal")
-    st.pyplot(fig)
 else:
-    st.error("❌ Optimasi gagal. Periksa kembali input parameter atau sumber daya.")
+    st.warning("⚠️ Optimasi tidak berhasil, namun berikut estimasi hasil dari solver (mungkin tidak optimal).")
+
+st.dataframe(df_hasil)
+st.subheader(f"💰 Total Keuntungan (Estimasi): Rp {keuntungan_total:,.2f}")
+
+# Visualisasi grafik tetap muncul
+st.subheader("📊 Visualisasi Produksi")
+fig, ax = plt.subplots()
+bars = ax.bar(product_names, produk_optimal, color="orange" if not result.success else "skyblue")
+for bar in bars:
+    height = bar.get_height()
+    ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f"{height:.2f}", ha="center")
+ax.set_ylabel("Jumlah Produksi")
+ax.set_title("Estimasi Kombinasi Produksi" if not result.success else "Kombinasi Produksi Optimal")
+st.pyplot(fig)
