@@ -1,114 +1,137 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+from scipy.optimize import linprog
 
-st.set_page_config(page_title="Optimasi Produksi Dinamis", layout="wide")
-st.title("📈 Optimasi Produksi - Fungsi Objektif Dinamis")
+st.set_page_config(page_title="Optimasi Produksi", layout="wide")
 
-st.markdown("""
-Aplikasi ini menghitung total penjualan dan keuntungan dari beberapa produk dengan rumus:
+tab1, tab2 = st.tabs(["🔧 Optimasi Produksi", "📊 Visualisasi"])
 
-\[
-Z = c_1 X_1 + c_2 X_2 + \dots + c_n X_n
-\]
+with tab1:
+    st.header("1️⃣ Optimasi Produksi (Linear Programming)")
+    st.markdown("""
+    ### 🔧 Studi Kasus
+    PT Kreasi Untung Indonesia memproduksi **Meja (X)** dan **Kursi (Y)**.
+    Fungsi keuntungan:
+    """)
+    st.latex(r"Z = c₁X + c₂Y")
 
-""")
+    st.markdown("### 📘 Keterangan:")
+    st.markdown(r"""
+    - $Z$: Total keuntungan  
+    - $c₁$: Keuntungan per unit Meja  
+    - $c₂$: Keuntungan per unit Kursi  
+    - $X$: Jumlah Meja  
+    - $Y$: Jumlah Kursi
+    """)
 
-# ==========================
-# Input Jumlah Produk
-# ==========================
-num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
-
-product_names = []
-jumlah_produksi = []
-harga_jual = []
-laba_per_unit = []
-
-st.subheader("📝 Input Data Produk")
-for i in range(num_products):
-    st.markdown(f"### Produk {i+1}")
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2 = st.columns(2)
     with col1:
-        name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"nama_{i}")
+        x = st.number_input("Jumlah Produksi Meja (X)", value=0.0)
+        laba_meja = st.number_input("Keuntungan per Meja (c₁)", value=0.0)
+        harga_meja = st.number_input("Harga Jual Meja", value=0.0)
     with col2:
-        qty = st.number_input(f"Jumlah Produksi", min_value=0, value=0, key=f"jumlah_{i}")
-    with col3:
-        harga = st.number_input(f"Harga Jual/unit", min_value=0, value=0, key=f"harga_{i}")
-    with col4:
-        laba = st.number_input(f"Keuntungan/unit", min_value=0, value=0, key=f"laba_{i}")
+        y = st.number_input("Jumlah Produksi Kursi (Y)", value=0.0)
+        laba_kursi = st.number_input("Keuntungan per Kursi (c₂)", value=0.0)
+        harga_kursi = st.number_input("Harga Jual Kursi", value=0.0)
 
-    product_names.append(name)
-    jumlah_produksi.append(qty)
-    harga_jual.append(harga)
-    laba_per_unit.append(laba)
+    def format_rupiah(nilai):
+        return f"Rp {nilai:,.0f}".replace(",", ".")
 
-# Fungsi format rupiah
-def format_rupiah(nilai):
-    return f"Rp {nilai:,.0f}".replace(",", ".")
+    if all([laba_meja, laba_kursi, x, y]):
+        Z = laba_meja * x + laba_kursi * y
+        st.subheader("🧮 Perhitungan Fungsi Tujuan Z")
+        st.latex(rf"""
+        \begin{{align*}}
+        Z &= c_1 \cdot X + c_2 \cdot Y \\
+          &= {laba_meja} \cdot {x} + {laba_kursi} \cdot {y} \\
+          &= {Z:,.0f}
+        \end{{align*}}
+        """)
 
-# ==========================
-# Perhitungan
-# ==========================
-total_penjualan = [harga_jual[i] * jumlah_produksi[i] for i in range(num_products)]
-total_keuntungan = [laba_per_unit[i] * jumlah_produksi[i] for i in range(num_products)]
-biaya_unit = [harga_jual[i] - laba_per_unit[i] for i in range(num_products)]
-total_biaya = [biaya_unit[i] * jumlah_produksi[i] for i in range(num_products)]
+    total_penjualan = harga_meja * x + harga_kursi * y
+    total_keuntungan = laba_meja * x + laba_kursi * y
 
-total_all_penjualan = sum(total_penjualan)
-total_all_keuntungan = sum(total_keuntungan)
-total_all_biaya = sum(total_biaya)
+    st.markdown("### 💰 Ringkasan Total Penjualan & Keuntungan")
+    st.write(f"Penjualan Meja: {format_rupiah(harga_meja * x)}")
+    st.write(f"Penjualan Kursi: {format_rupiah(harga_kursi * y)}")
+    st.write(f"Total Penjualan: {format_rupiah(total_penjualan)}")
+    st.write(f"Total Keuntungan Bersih: {format_rupiah(total_keuntungan)}")
 
-# ==========================
-# Tampilan Hasil
-# ==========================
-st.subheader("📊 Ringkasan Perhitungan")
-df = pd.DataFrame({
-    "Produk": product_names,
-    "Jumlah Produksi": jumlah_produksi,
-    "Harga Jual/unit": harga_jual,
-    "Keuntungan/unit": laba_per_unit,
-    "Total Penjualan": total_penjualan,
-    "Total Keuntungan": total_keuntungan,
-    "Total Biaya Produksi": total_biaya
-})
-st.dataframe(df.style.format({"Total Penjualan": "Rp {:,.0f}",
-                              "Total Keuntungan": "Rp {:,.0f}",
-                              "Total Biaya Produksi": "Rp {:,.0f}"}))
+    st.markdown("### 📊 Diagram Perbandingan")
+    kategori = ["Meja", "Kursi", "Total"]
+    penjualan = [harga_meja * x, harga_kursi * y, total_penjualan]
+    keuntungan = [laba_meja * x, laba_kursi * y, total_keuntungan]
+    x_pos = np.arange(len(kategori))
+    width = 0.35
 
-st.markdown("### 💰 Total Ringkasan")
-st.write(f"📦 Total Penjualan: {format_rupiah(total_all_penjualan)}")
-st.write(f"💸 Total Biaya Produksi: {format_rupiah(total_all_biaya)}")
-st.write(f"✅ Total Keuntungan Bersih: {format_rupiah(total_all_keuntungan)}")
+    fig1, ax1 = plt.subplots()
+    bar1 = ax1.bar(x_pos - width/2, keuntungan, width, label="Keuntungan", color='skyblue')
+    bar2 = ax1.bar(x_pos + width/2, penjualan, width, label="Penjualan", color='lightgreen')
 
-# ==========================
-# Grafik Batang
-# ==========================
-st.subheader("📊 Grafik Perbandingan")
-x_pos = np.arange(len(product_names))
-width = 0.35
+    for bars in [bar1, bar2]:
+        for bar in bars:
+            height = bar.get_height()
+            ax1.text(bar.get_x() + bar.get_width()/2, height + 5, f"{height:,.0f}", ha='center', fontsize=9)
 
-fig, ax = plt.subplots()
-bar1 = ax.bar(x_pos - width/2, total_keuntungan, width, label='Keuntungan', color='skyblue')
-bar2 = ax.bar(x_pos + width/2, total_penjualan, width, label='Penjualan', color='lightgreen')
+    ax1.set_xticks(x_pos)
+    ax1.set_xticklabels(kategori)
+    ax1.set_title("Perbandingan Penjualan dan Keuntungan")
+    ax1.set_ylabel("Rupiah")
+    ax1.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
+    ax1.legend()
+    st.pyplot(fig1)
 
-max_val = max(total_penjualan + total_keuntungan) if total_penjualan else 0
-ax.set_ylim(0, max_val * 1.3)
+    # ============================================
+    # 🔧 Tambahan: OPTIMASI PRODUKSI TENAGA KERJA
+    # ============================================
+    st.markdown("### 👷‍♂️ Optimasi Berdasarkan Kendala Tenaga Kerja")
 
-for bars in [bar1, bar2]:
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width() / 2,
-                height + 0.03 * max_val,
-                f"{int(height):,}".replace(",", "."),
-                ha='center', va='bottom', fontsize=10)
+    col_op1, col_op2 = st.columns(2)
+    with col_op1:
+        tenaga_meja = st.number_input("Tenaga Kerja per Meja", value=0.0)
+    with col_op2:
+        tenaga_kursi = st.number_input("Tenaga Kerja per Kursi", value=0.0)
 
-ax.set_xticks(x_pos)
-ax.set_xticklabels(product_names)
-ax.set_ylabel("Rupiah")
-ax.set_title("Perbandingan Penjualan dan Keuntungan per Produk")
-ax.legend()
-ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
+    total_operator = st.number_input("Total Tenaga Kerja Tersedia", value=0.0)
 
-st.pyplot(fig)
+    if all([tenaga_meja, tenaga_kursi, laba_meja, laba_kursi, total_operator]):
+        c = [-laba_meja, -laba_kursi]
+        A = [[tenaga_meja, tenaga_kursi]]
+        b = [total_operator]
+        bounds = [(0, None), (0, None)]
+
+        result = linprog(c, A_ub=A, b_ub=b, bounds=bounds, method="highs")
+
+        if result.success:
+            x_opt, y_opt = result.x
+            keuntungan_opt = -result.fun
+
+            st.success("✅ Hasil Optimasi:")
+            st.write(f"Jumlah Meja: {x_opt:.2f}")
+            st.write(f"Jumlah Kursi: {y_opt:.2f}")
+            st.write(f"Total Keuntungan Maksimum: {format_rupiah(keuntungan_opt)}")
+
+            fig2, ax2 = plt.subplots()
+            produk = ['Meja', 'Kursi']
+            jumlah = [x_opt, y_opt]
+            profit = [x_opt * laba_meja, y_opt * laba_kursi]
+
+            barx = np.arange(len(produk))
+            bar1 = ax2.bar(barx - 0.2, jumlah, 0.4, label='Produksi')
+            bar2 = ax2.bar(barx + 0.2, profit, 0.4, label='Keuntungan')
+
+            for bars in [bar1, bar2]:
+                for bar in bars:
+                    height = bar.get_height()
+                    ax2.text(bar.get_x() + bar.get_width()/2, height + 0.5, f"{height:.1f}", ha='center', fontsize=9)
+
+            ax2.set_xticks(barx)
+            ax2.set_xticklabels(produk)
+            ax2.set_ylabel("Jumlah / Rupiah")
+            ax2.set_title("Optimasi Produksi Berdasarkan Tenaga Kerja")
+            ax2.legend()
+            st.pyplot(fig2)
+        else:
+            st.error("❌ Optimasi gagal. Periksa input data.")
