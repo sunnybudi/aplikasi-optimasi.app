@@ -1,100 +1,116 @@
+#kodingan optimasi rev2
+
 import streamlit as st
 import numpy as np
 import pandas as pd
-from scipy.optimize import linprog
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
-st.set_page_config(page_title="Optimasi Produksi", layout="wide")
-st.title("📈 Optimasi Produksi - Maksimalkan Keuntungan")
+st.set_page_config(page_title="Optimasi Produksi Dinamis", layout="wide")
+st.title("📈 Optimasi Produksi - Fungsi Objektif Dinamis")
 
 st.markdown("""
-Aplikasi ini membantu menentukan kombinasi produksi optimal untuk memaksimalkan keuntungan berdasarkan batasan tenaga kerja (operator).
+Aplikasi ini menghitung total penjualan dan keuntungan dari beberapa produk dengan rumus:
 
-### Rumus Fungsi Objektif:
 \[
-Z = c_1 X + c_2 Y + \dots + c_n X_n
+Z = c_1 X_1 + c_2 X_2 + \dots + c_n X_n
 \]
+
 """)
 
-# Input jumlah produk
+# ==========================
+# Input Jumlah Produk
+# ==========================
 num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
 
 product_names = []
-profits = []
-tenaga_per_unit = []
+jumlah_produksi = []
+harga_jual = []
+laba_per_unit = []
 
-st.header("📦 Input Data Produk")
+st.subheader("📝 Input Data Produk")
 for i in range(num_products):
-    st.subheader(f"Produk {i+1}")
-    col1, col2, col3 = st.columns(3)
+    st.markdown(f"### Produk {i+1}")
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
-        name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"name_{i}")
+        name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"nama_{i}")
     with col2:
-        profit = st.number_input(f"Keuntungan/unit {name}", value=10.0, key=f"profit_{i}")
+        qty = st.number_input(f"Jumlah Produksi", min_value=0, value=0, key=f"jumlah_{i}")
     with col3:
-        tenaga = st.number_input(f"Tenaga Kerja/unit {name}", value=1.0, key=f"tenaga_{i}")
-    
+        harga = st.number_input(f"Harga Jual/unit", min_value=0, value=0, key=f"harga_{i}")
+    with col4:
+        laba = st.number_input(f"Keuntungan/unit", min_value=0, value=0, key=f"laba_{i}")
+
     product_names.append(name)
-    profits.append(profit)
-    tenaga_per_unit.append(tenaga)
+    jumlah_produksi.append(qty)
+    harga_jual.append(harga)
+    laba_per_unit.append(laba)
 
-# Input total tenaga kerja
-st.header("👷 Total Tenaga Kerja Tersedia")
-total_operator = st.number_input("Jumlah Total Operator", value=100.0)
+# Fungsi format rupiah
+def format_rupiah(nilai):
+    return f"Rp {nilai:,.0f}".replace(",", ".")
 
-# Optimasi
-c = [-p for p in profits]
-A = [tenaga_per_unit]
-b = [total_operator]
-bounds = [(0, None) for _ in range(num_products)]
+# ==========================
+# Perhitungan
+# ==========================
+total_penjualan = [harga_jual[i] * jumlah_produksi[i] for i in range(num_products)]
+total_keuntungan = [laba_per_unit[i] * jumlah_produksi[i] for i in range(num_products)]
+biaya_unit = [harga_jual[i] - laba_per_unit[i] for i in range(num_products)]
+total_biaya = [biaya_unit[i] * jumlah_produksi[i] for i in range(num_products)]
 
-result = linprog(c=c, A_ub=A, b_ub=b, bounds=bounds, method="highs")
+total_all_penjualan = sum(total_penjualan)
+total_all_keuntungan = sum(total_keuntungan)
+total_all_biaya = sum(total_biaya)
 
-if result.success:
-    produk_optimal = np.round(result.x, 2)
-    keuntungan_total = -result.fun
+# ==========================
+# Tampilan Hasil
+# ==========================
+st.subheader("📊 Ringkasan Perhitungan")
+df = pd.DataFrame({
+    "Produk": product_names,
+    "Jumlah Produksi": jumlah_produksi,
+    "Harga Jual/unit": harga_jual,
+    "Keuntungan/unit": laba_per_unit,
+    "Total Penjualan": total_penjualan,
+    "Total Keuntungan": total_keuntungan,
+    "Total Biaya Produksi": total_biaya
+})
+st.dataframe(df.style.format({"Total Penjualan": "Rp {:,.0f}",
+                              "Total Keuntungan": "Rp {:,.0f}",
+                              "Total Biaya Produksi": "Rp {:,.0f}"}))
 
-    df_hasil = pd.DataFrame({
-        "Produk": product_names,
-        "Jumlah Optimal": produk_optimal,
-        "Keuntungan/unit": profits,
-        "Total Keuntungan": np.round(np.multiply(produk_optimal, profits), 2)
-    })
+st.markdown("### 💰 Total Ringkasan")
+st.write(f"📦 Total Penjualan: {format_rupiah(total_all_penjualan)}")
+st.write(f"💸 Total Biaya Produksi: {format_rupiah(total_all_biaya)}")
+st.write(f"✅ Total Keuntungan Bersih: {format_rupiah(total_all_keuntungan)}")
 
-    st.success("✅ Solusi optimal ditemukan!")
-    st.dataframe(df_hasil)
-    st.subheader(f"💰 Total Keuntungan Maksimum: Rp {keuntungan_total:,.2f}")
+# ==========================
+# Grafik Batang
+# ==========================
+st.subheader("📊 Grafik Perbandingan")
+x_pos = np.arange(len(product_names))
+width = 0.35
 
-    # Grafik batang
-    st.subheader("📊 Visualisasi Solusi Optimal")
-    fig, ax = plt.subplots(figsize=(8, 4))
-    bar1 = ax.bar(product_names, produk_optimal, color='skyblue')
-    for bar in bar1:
+fig, ax = plt.subplots()
+bar1 = ax.bar(x_pos - width/2, total_keuntungan, width, label='Keuntungan', color='skyblue')
+bar2 = ax.bar(x_pos + width/2, total_penjualan, width, label='Penjualan', color='lightgreen')
+
+max_val = max(total_penjualan + total_keuntungan) if total_penjualan else 0
+ax.set_ylim(0, max_val * 1.3)
+
+for bars in [bar1, bar2]:
+    for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f"{height:.2f}", ha='center')
-    ax.set_ylabel("Jumlah Produksi Optimal")
-    ax.set_title("Kombinasi Produksi Optimal")
-    st.pyplot(fig)
+        ax.text(bar.get_x() + bar.get_width() / 2,
+                height + 0.03 * max_val,
+                f"{int(height):,}".replace(",", "."),
+                ha='center', va='bottom', fontsize=10)
 
-    # Simulasi jika hanya satu produk diproduksi
-    st.subheader("🔍 Perbandingan Jika Hanya Produksi Satu Produk Saja")
-    simulasi_data = []
+ax.set_xticks(x_pos)
+ax.set_xticklabels(product_names)
+ax.set_ylabel("Rupiah")
+ax.set_title("Perbandingan Penjualan dan Keuntungan per Produk")
+ax.legend()
+ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
 
-    for i in range(num_products):
-        max_jumlah = total_operator / tenaga_per_unit[i] if tenaga_per_unit[i] != 0 else 0
-        jumlah_produksi = np.floor(max_jumlah)
-        total_untung = jumlah_produksi * profits[i]
-        total_operator_pakai = jumlah_produksi * tenaga_per_unit[i]
-
-        simulasi_data.append({
-            "Produk": product_names[i],
-            "Jumlah Jika Sendiri": jumlah_produksi,
-            "Keuntungan Jika Sendiri": total_untung,
-            "Operator Digunakan": total_operator_pakai
-        })
-
-    df_simulasi = pd.DataFrame(simulasi_data)
-    st.dataframe(df_simulasi)
-
-else:
-    st.error("❌ Optimasi gagal. Periksa input.")
+st.pyplot(fig)
