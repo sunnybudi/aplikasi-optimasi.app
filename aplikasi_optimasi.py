@@ -3,95 +3,113 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
-    st.header("1️⃣ Optimasi Produksi (Linear Programming)")
-    st.markdown("""
-    ### 🔧 Studi Kasus
-    PT Kreasi Untung Indonesia memproduksi **Meja (X)** dan **Kursi (Y)**.
-    Model optimasi produksi yang digunakan adalah:
+st.set_page_config(page_title="Optimasi Produksi", layout="wide")
+
+st.title("1️⃣ Optimasi Produksi (Linear Programming)")
+st.markdown("""
+### 🔧 Studi Kasus
+PT Kreasi Untung Indonesia memproduksi **Meja (X)** dan **Kursi (Y)**. 
+Pemilik ingin mengetahui kombinasi produksi terbaik untuk memaksimalkan keuntungan dengan rumus:
+
+\[
+Z = c_1 X + c_2 Y
+\]
+""")
+
+st.markdown("### 📘 Keterangan:")
+st.markdown(r"""
+- $Z$  = Total keuntungan  
+- $c₁$ = Keuntungan per unit Meja  
+- $c₂$ = Keuntungan per unit Kursi  
+- $X$  = Jumlah Meja  
+- $Y$  = Jumlah Kursi
+""")
+
+# ===============================
+# Input Data
+# ===============================
+st.markdown("### 💵 Input Harga Jual & Keuntungan per Unit")
+
+col1, col2 = st.columns(2)
+with col1:
+    x = st.number_input("Jumlah Produksi Meja (X)", min_value=0, value=0)
+    laba_meja = st.number_input("Keuntungan per Meja (c₁)", min_value=0, value=0)
+    harga_meja = st.number_input("Harga Jual Meja", min_value=0, value=0)
+with col2:
+    y = st.number_input("Jumlah Produksi Kursi (Y)", min_value=0, value=0)
+    laba_kursi = st.number_input("Keuntungan per Kursi (c₂)", min_value=0, value=0)
+    harga_kursi = st.number_input("Harga Jual Kursi", min_value=0, value=0)
+
+# Fungsi format rupiah
+def format_rupiah(nilai):
+    return f"Rp {nilai:,.0f}".replace(",", ".")
+
+# ===============================
+# Fungsi Tujuan Z
+# ===============================
+if all([x, y, laba_meja, laba_kursi]):
+    Z = laba_meja * x + laba_kursi * y
+
+    st.subheader("🧮 Perhitungan Fungsi Tujuan")
+    st.latex(rf"""
+    \begin{{align*}}
+    Z &= c_1 \cdot X + c_2 \cdot Y \\
+      &= {laba_meja} \cdot {x} + {laba_kursi} \cdot {y} \\
+      &= {Z:,.0f}
+    \end{{align*}}
     """)
-    st.latex(r"Z = c_1 X + c_2 Y")
 
-    st.markdown("""
-    ### 📘 Notasi:
-    - $Z$: Total keuntungan
-    - $c_1$, $c_2$: Keuntungan per unit Meja/Kursi
-    - $X$, $Y$: Jumlah unit Meja/Kursi
-    """)
+    # ===============================
+    # Ringkasan Penjualan & Keuntungan
+    # ===============================
+    st.markdown("### 💰 Ringkasan Penjualan & Keuntungan")
 
-    st.subheader("📥 Input Parameter Produksi")
-    col1, col2 = st.columns(2)
-    with col1:
-        x = st.number_input("Jumlah Produksi Meja (X)", min_value=0, value=0)
-        c1 = st.number_input("Keuntungan per Meja (c₁)", min_value=0, value=0)
-        waktu_meja = st.number_input("Jam Kerja per Meja", min_value=0.0, value=0.0)
-        operator_meja = st.number_input("Operator per Meja", min_value=0.0, value=0.0)
-    with col2:
-        y = st.number_input("Jumlah Produksi Kursi (Y)", min_value=0, value=0)
-        c2 = st.number_input("Keuntungan per Kursi (c₂)", min_value=0, value=0)
-        waktu_kursi = st.number_input("Jam Kerja per Kursi", min_value=0.0, value=0.0)
-        operator_kursi = st.number_input("Operator per Kursi", min_value=0.0, value=0.0)
+    total_penjualan_meja = harga_meja * x
+    total_penjualan_kursi = harga_kursi * y
+    total_penjualan = total_penjualan_meja + total_penjualan_kursi
 
-    st.subheader("🛠️ Batasan Sumber Daya")
-    col3, col4 = st.columns(2)
-    with col3:
-        max_waktu = st.number_input("Total Jam Kerja Tersedia", value=0.0, min_value=0.0)
-    with col4:
-        max_operator = st.number_input("Total Operator Tersedia", value=0.0, min_value=0.0)
+    biaya_meja = harga_meja - laba_meja
+    biaya_kursi = harga_kursi - laba_kursi
 
-    if all([x, y, c1, c2, waktu_meja, waktu_kursi, operator_meja, operator_kursi, max_waktu, max_operator]):
-        total_keuntungan = c1 * x + c2 * y
-        waktu_dipakai = waktu_meja * x + waktu_kursi * y
-        operator_dipakai = operator_meja * x + operator_kursi * y
+    total_biaya = (biaya_meja * x) + (biaya_kursi * y)
+    total_laba = laba_meja * x + laba_kursi * y
 
-        st.subheader("🧮 Perhitungan Fungsi Tujuan")
-        st.latex(rf"""
-        \begin{{align*}}
-        Z &= c_1 X + c_2 Y \\
-          &= {c1} \cdot {x} + {c2} \cdot {y} \\
-          &= {total_keuntungan:,.0f}
-        \end{{align*}}
-        """)
+    st.write(f"🪑 Penjualan Meja: {format_rupiah(total_penjualan_meja)}")
+    st.write(f"🪑 Penjualan Kursi: {format_rupiah(total_penjualan_kursi)}")
+    st.write(f"📊 Total Penjualan: {format_rupiah(total_penjualan)}")
+    st.write(f"💸 Total Keuntungan Bersih: {format_rupiah(total_laba)}")
 
-        st.markdown("### ✅ Evaluasi Kendala")
-        st.write(f"⏱️ Total Jam Kerja Digunakan: **{waktu_dipakai}** dari maksimum {max_waktu}")
-        st.write(f"👷 Total Operator Digunakan: **{operator_dipakai}** dari maksimum {max_operator}")
+    # ===============================
+    # Grafik Batang
+    # ===============================
+    st.markdown("### 📊 Grafik Perbandingan")
 
-        waktu_ok = waktu_dipakai <= max_waktu
-        operator_ok = operator_dipakai <= max_operator
+    kategori = ['Meja (X)', 'Kursi (Y)', 'Total']
+    penjualan = [total_penjualan_meja, total_penjualan_kursi, total_penjualan]
+    keuntungan = [laba_meja * x, laba_kursi * y, total_laba]
 
-        if waktu_ok and operator_ok:
-            st.success("✅ Produksi memenuhi semua kendala sumber daya!")
-        else:
-            if not waktu_ok:
-                st.error("❌ Produksi melebihi batas jam kerja!")
-            if not operator_ok:
-                st.error("❌ Produksi melebihi batas jumlah operator!")
+    x_pos = np.arange(len(kategori))
+    width = 0.35
 
-        # Grafik perbandingan
-        st.markdown("### 📊 Grafik Perbandingan Produksi & Keuntungan")
-        kategori = ['Meja (X)', 'Kursi (Y)']
-        produksi = [x, y]
-        keuntungan = [c1 * x, c2 * y]
+    fig, ax = plt.subplots()
+    bar1 = ax.bar(x_pos - width/2, keuntungan, width, label='Keuntungan', color='skyblue')
+    bar2 = ax.bar(x_pos + width/2, penjualan, width, label='Penjualan', color='lightgreen')
 
-        x_pos = np.arange(len(kategori))
-        width = 0.35
-        fig, ax = plt.subplots(figsize=(8, 4))
-        bar1 = ax.bar(x_pos - width/2, keuntungan, width=width, label='Keuntungan', color='skyblue')
-        bar2 = ax.bar(x_pos + width/2, produksi, width=width, label='Jumlah Produksi', color='lightgreen')
+    for bars in [bar1, bar2]:
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                height + 0.03 * max(penjualan + keuntungan),
+                f"{int(height):,}".replace(",", "."),
+                ha='center', va='bottom', fontsize=10
+            )
 
-        max_val = max(keuntungan + produksi) * 1.2
-        ax.set_ylim(0, max_val)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(kategori)
+    ax.set_title("Perbandingan Penjualan dan Keuntungan")
+    ax.set_ylabel("Rupiah")
+    ax.legend()
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
 
-        for bars in [bar1, bar2]:
-            for bar in bars:
-                height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2, height + 0.5, f"{height:.0f}", ha='center', fontsize=9)
-
-        ax.set_xticks(x_pos)
-        ax.set_xticklabels(kategori)
-        ax.set_ylabel("Nilai")
-        ax.set_title("Produksi & Keuntungan per Produk")
-        ax.legend()
-        ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
-
-        st.pyplot(fig)
+    st.pyplot(fig)
