@@ -9,7 +9,6 @@ st.set_page_config(page_title="Optimasi Produksi", layout="wide")
 st.title("👷‍♂️ Optimasi Produksi Berdasarkan Operator & Mesin")
 
 st.markdown("Aplikasi ini menghitung kombinasi produksi produk untuk memaksimalkan keuntungan berdasarkan jumlah **operator** dan **mesin** yang tersedia.")
-
 # -------------------------
 # Input Produk & Keuntungan
 # -------------------------
@@ -38,16 +37,6 @@ for i in range(num_products):
     profits.append(profit)
     operator_per_unit.append(op)
     machine_per_unit.append(machine)
-
-# -------------------------
-# Input Ketersediaan Sumber Daya
-# -------------------------
-st.header("2️⃣ Ketersediaan Sumber Daya")
-
-col_op, col_mc = st.columns(2)
-total_operator = col_op.number_input("Jumlah Total Operator Tersedia", value=100.0, step=1.0)
-total_machine = col_mc.number_input("Jumlah Total Mesin Tersedia", value=80.0, step=1.0)
-
 # -------------------------
 # Optimisasi
 # -------------------------
