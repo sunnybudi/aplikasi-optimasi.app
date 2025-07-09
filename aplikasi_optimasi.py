@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
-with tab1:
     st.header("1️⃣ Optimasi Produksi (Linear Programming)")
     st.markdown("""
     ### 🔧 Studi Kasus
