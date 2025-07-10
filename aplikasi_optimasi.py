@@ -44,7 +44,7 @@ for i in range(num_products):
     with col5:
         mesin = st.number_input("Jumlah Mesin Digunakan", min_value=0, value=0, key=f"mesin_{i}")
     with col6:
-        op_mesin = st.number_input(f"Operator per Mesin (Produk {i+1})", min_value=1, value=1, key=f"opmesin_{i}")
+        op_mesin = st.number_input(f"Operator/Mesin", min_value=1, value=1, key=f"opmesin_{i}")
 
     product_names.append(name)
     jumlah_produksi.append(qty)
