@@ -1,4 +1,3 @@
-# Konfigurasi awal
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -8,7 +7,7 @@ from matplotlib.ticker import FuncFormatter
 st.set_page_config(page_title="Optimasi Produksi - Mesin & Operator", layout="wide")
 st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 
-# Penjelasan rumus
+# Penjelasan Rumus
 st.markdown(r"""
 ## 📘 Rumus Optimasi Produksi
 
@@ -23,53 +22,59 @@ $$
 $$
 """)
 
-# Input jumlah produk (di sidebar)
-st.sidebar.header("📦 Input Jumlah Produk")
-num_products = st.sidebar.number_input("Jumlah Produk", min_value=2, value=2, step=1)
+# ---------- Input: SEMUA di SIDEBAR ----------
+with st.sidebar:
+    st.header("📦 Input Jumlah Produk")
+    num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
 
-# Inisialisasi list
-product_names, jumlah_produksi, harga_jual, laba_per_unit = [], [], [], []
-mesin_digunakan, operator_per_mesin = [], []
+    st.header("📥 Input Data Produk")
 
-st.sidebar.header("📥 Input Data Produk")
+    product_names = []
+    jumlah_produksi = []
+    harga_jual = []
+    laba_per_unit = []
+    mesin_digunakan = []
+    operator_per_mesin = []
 
-for i in range(num_products):
-    st.sidebar.markdown(f"### 🔹 Produk {i+1}")
-    name = st.sidebar.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"nama_{i}")
-    qty = st.sidebar.number_input("Jumlah Produksi", min_value=0, value=0, key=f"jumlah_{i}")
-    harga = st.sidebar.number_input("Harga Jual/unit", min_value=0, value=0, key=f"harga_{i}")
-    laba = st.sidebar.number_input("Keuntungan/unit", min_value=0, value=0, key=f"laba_{i}")
-    mesin = st.sidebar.number_input("Jumlah Mesin Digunakan", min_value=0, value=0, key=f"mesin_{i}")
-    op_mesin = st.sidebar.number_input("Operator/Mesin", min_value=1, value=1, key=f"opmesin_{i}")
+    for i in range(num_products):
+        st.markdown(f"### 🔹 Produk {i+1}")
+        name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"name_{i}")
+        qty = st.number_input(f"Jumlah Produksi Produk {i+1}", min_value=0, value=0, key=f"qty_{i}")
+        harga = st.number_input(f"Harga Jual/unit Produk {i+1}", min_value=0, value=0, key=f"harga_{i}")
+        laba = st.number_input(f"Keuntungan/unit Produk {i+1}", min_value=0, value=0, key=f"laba_{i}")
+        mesin = st.number_input(f"Jumlah Mesin Produk {i+1}", min_value=0, value=0, key=f"mesin_{i}")
+        op_mesin = st.number_input(f"Operator per Mesin Produk {i+1}", min_value=1, value=1, key=f"opmesin_{i}")
 
-    # Simpan ke list
-    product_names.append(name)
-    jumlah_produksi.append(qty)
-    harga_jual.append(harga)
-    laba_per_unit.append(laba)
-    mesin_digunakan.append(mesin)
-    operator_per_mesin.append(op_mesin)
+        product_names.append(name)
+        jumlah_produksi.append(qty)
+        harga_jual.append(harga)
+        laba_per_unit.append(laba)
+        mesin_digunakan.append(mesin)
+        operator_per_mesin.append(op_mesin)
 
-# Fungsi format Rupiah
+# ---------- Fungsi Tambahan ----------
 def format_rupiah(nilai):
     return f"Rp {nilai:,.0f}".replace(",", ".")
 
-# Perhitungan
+# ---------- Perhitungan ----------
 total_penjualan = [harga_jual[i] * jumlah_produksi[i] for i in range(num_products)]
 total_keuntungan = [laba_per_unit[i] * jumlah_produksi[i] for i in range(num_products)]
 biaya_unit = [harga_jual[i] - laba_per_unit[i] for i in range(num_products)]
 total_biaya = [biaya_unit[i] * jumlah_produksi[i] for i in range(num_products)]
 total_operator_per_produk = [mesin_digunakan[i] * operator_per_mesin[i] for i in range(num_products)]
-efisiensi_per_produk = [total_keuntungan[i] / total_operator_per_produk[i] if total_operator_per_produk[i] > 0 else 0 for i in range(num_products)]
+efisiensi_per_produk = [
+    total_keuntungan[i] / total_operator_per_produk[i] if total_operator_per_produk[i] > 0 else 0
+    for i in range(num_products)
+]
 
-# Total keseluruhan
+# Ringkasan total
 total_all_penjualan = sum(total_penjualan)
 total_all_keuntungan = sum(total_keuntungan)
 total_all_biaya = sum(total_biaya)
 total_mesin = sum(mesin_digunakan)
 total_operator = sum(total_operator_per_produk)
 
-# Tabel hasil
+# ---------- Tampilkan Tabel Ringkasan ----------
 st.subheader("📊 Ringkasan Perhitungan")
 df = pd.DataFrame({
     "Produk": product_names,
@@ -91,7 +96,7 @@ st.dataframe(df.style.format({
     "Efisiensi (Rp/Operator)": "Rp {:,.0f}"
 }))
 
-# Ringkasan
+# ---------- Ringkasan Total ----------
 st.markdown("### 💰 Total Ringkasan")
 st.write(f"📦 Total Penjualan: {format_rupiah(total_all_penjualan)}")
 st.write(f"💸 Total Biaya Produksi: {format_rupiah(total_all_biaya)}")
@@ -99,7 +104,7 @@ st.write(f"✅ Total Keuntungan Bersih: {format_rupiah(total_all_keuntungan)}")
 st.write(f"🛠️ Total Mesin Digunakan: {total_mesin} unit")
 st.write(f"👷 Total Operator Dibutuhkan: {total_operator} orang")
 
-# Rekomendasi Produk Berdasarkan Efisiensi
+# ---------- Rekomendasi Produk Efisien ----------
 st.subheader("📌 Rekomendasi Prioritas Produksi")
 df_prioritas = pd.DataFrame({
     "Produk": product_names,
@@ -111,7 +116,7 @@ produk_efisien = df_prioritas.iloc[0]["Produk"]
 efisiensi_tertinggi = df_prioritas.iloc[0]["Efisiensi"]
 st.success(f"✅ Produk yang paling efisien diproduksi: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
 
-# Grafik
+# ---------- Grafik ----------
 st.subheader("📊 Diagram Perbandingan")
 x_pos = np.arange(len(product_names) + 1)
 width = 0.35
