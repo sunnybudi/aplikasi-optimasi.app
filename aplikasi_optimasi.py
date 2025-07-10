@@ -10,44 +10,22 @@ st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 st.markdown("""
 Aplikasi ini menghitung penjualan, keuntungan, total mesin, dan total operator berdasarkan input produk.
 
-st.markdown(r"""
-## 📘 Rumus dan Penjelasan
+st.markdown("## 📘 Rumus dan Penjelasan")
 
-### 1. Total Penjualan:
-\[
-\text{Total Penjualan}_i = \text{Harga Jual/unit}_i \times \text{Jumlah Produksi}_i
-\]
+st.latex(r"\text{Total Penjualan}_i = \text{Harga Jual/unit}_i \times \text{Jumlah Produksi}_i")
+st.markdown("👉 *Pendapatan dari penjualan semua unit produk.*")
 
-👉 *Menghitung total pendapatan dari penjualan setiap produk.*
+st.latex(r"\text{Total Keuntungan}_i = \text{Laba/unit}_i \times \text{Jumlah Produksi}_i")
+st.markdown("👉 *Keuntungan total dari semua unit yang dijual.*")
 
-### 2. Total Keuntungan:
-\[
-\text{Total Keuntungan}_i = \text{Laba/unit}_i \times \text{Jumlah Produksi}_i
-\]
+st.latex(r"\text{Biaya Produksi}_i = (\text{Harga Jual/unit}_i - \text{Laba/unit}_i) \times \text{Jumlah Produksi}_i")
+st.markdown("👉 *Biaya produksi total berdasarkan margin laba.*")
 
-👉 *Menghitung total keuntungan bersih yang dihasilkan dari produk.*
+st.latex(r"\text{Total Operator}_i = \text{Jumlah Mesin}_i \times \text{Operator/Mesin}_i")
+st.markdown("👉 *Total tenaga kerja yang dibutuhkan.*")
 
-### 3. Total Biaya Produksi:
-\[
-\text{Biaya Produksi}_i = (\text{Harga Jual/unit}_i - \text{Laba/unit}_i) \times \text{Jumlah Produksi}_i
-\]
-
-👉 *Biaya yang dikeluarkan untuk memproduksi produk.*
-
-### 4. Total Operator Produk:
-\[
-\text{Total Operator}_i = \text{Jumlah Mesin}_i \times \text{Operator/Mesin}_i
-\]
-
-👉 *Menghitung kebutuhan operator per produk.*
-
-### 5. Efisiensi Produksi:
-\[
-\text{Efisiensi}_i = \frac{\text{Total Keuntungan}_i}{\text{Total Operator}_i}
-\]
-
-👉 *Mengukur seberapa besar keuntungan yang dihasilkan setiap operator.*
-""")
+st.latex(r"\text{Efisiensi}_i = \frac{\text{Total Keuntungan}_i}{\text{Total Operator}_i}")
+st.markdown("👉 *Mengukur seberapa banyak keuntungan yang dihasilkan per operator.*")
 
 # Input jumlah produk
 num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
