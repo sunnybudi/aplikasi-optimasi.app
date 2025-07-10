@@ -19,6 +19,7 @@ $$
 \text{Efisiensi} &= \dfrac{\text{Total Keuntungan}}{\text{Total Operator}}
 \end{array}
 $$
+""")
 
 # Input jumlah produk
 num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
