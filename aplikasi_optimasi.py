@@ -7,25 +7,17 @@ from matplotlib.ticker import FuncFormatter
 st.set_page_config(page_title="Optimasi Produksi - Mesin & Operator", layout="wide")
 st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 
-st.markdown("""
-Aplikasi ini menghitung penjualan, keuntungan, total mesin, dan total operator berdasarkan input produk.
+st.markdown(r"""
+## 📘 Rumus Model Antrian M/M/1
 
-st.markdown("## 📘 Rumus dan Penjelasan")
-
-st.latex(r"Total Penjualan = Harga Jual per Unit × Jumlah Produksi")
-st.markdown("👉 *Pendapatan dari penjualan semua unit produk.*")
-
-st.latex(r"\text{Total Keuntungan}_i = \text{Laba/unit}_i \times \text{Jumlah Produksi}_i")
-st.markdown("👉 *Keuntungan total dari semua unit yang dijual.*")
-
-st.latex(r"\text{Biaya Produksi}_i = (\text{Harga Jual/unit}_i - \text{Laba/unit}_i) \times \text{Jumlah Produksi}_i")
-st.markdown("👉 *Biaya produksi total berdasarkan margin laba.*")
-
-st.latex(r"\text{Total Operator}_i = \text{Jumlah Mesin}_i \times \text{Operator/Mesin}_i")
-st.markdown("👉 *Total tenaga kerja yang dibutuhkan.*")
-
-st.latex(r"\text{Efisiensi}_i = \frac{\text{Total Keuntungan}_i}{\text{Total Operator}_i}")
-st.markdown("👉 *Mengukur seberapa banyak keuntungan yang dihasilkan per operator.*")
+$$
+\rho = \frac{\lambda}{\mu} \\
+L = \frac{\lambda}{\mu - \lambda} \\
+L_q = \frac{\lambda^2}{\mu(\mu - \lambda)} \\
+W = \frac{1}{\mu - \lambda} \\
+W_q = \frac{\lambda}{\mu(\mu - \lambda)} \\
+P_0 = 1 - \rho
+$$
 """)
 
 # Input jumlah produk
