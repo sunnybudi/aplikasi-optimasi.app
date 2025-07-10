@@ -113,11 +113,11 @@ produk_efisien = df_prioritas.iloc[0]["Produk"]
 efisiensi_tertinggi = df_prioritas.iloc[0]["Efisiensi"]
 st.success(f"✅ Produk yang paling efisien diproduksi: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
 
-# Grafik (tanpa total operator, ditambah garis total penjualan semua produk)
+# Grafik (tanpa total operator, dan ukuran diperbaiki)
 st.subheader("📊 Diagram Perbandingan")
 x_pos = np.arange(len(product_names))
 width = 0.35
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(8, 5))  # <<< Ukuran diperbaiki di sini
 
 bar1 = ax.bar(x_pos - width/2, total_keuntungan, width, label='Keuntungan', color='skyblue')
 bar2 = ax.bar(x_pos + width/2, total_penjualan, width, label='Penjualan', color='lightgreen')
@@ -132,19 +132,20 @@ for bars in [bar1, bar2]:
     for bar in bars:
         height = bar.get_height()
         ax.text(bar.get_x() + bar.get_width() / 2,
-                height + 0.03 * max_val,
+                height + 0.01 * max_val,
                 f"{int(height):,}".replace(",", "."),
-                ha='center', va='bottom', fontsize=9)
+                ha='center', va='bottom', fontsize=8)
 
-# Label garis
-ax.text(len(product_names) - 0.5, total_all_penjualan + 0.02 * max_val,
+# Label garis total
+ax.text(len(product_names) - 0.5, total_all_penjualan + 0.01 * max_val,
         f"Total Semua Produk: {int(total_all_penjualan):,}".replace(",", "."),
-        color='red', ha='right', fontsize=10, fontweight='bold')
+        color='red', ha='right', fontsize=9, fontweight='bold')
 
 ax.set_xticks(x_pos)
-ax.set_xticklabels(product_names)
-ax.set_ylabel("Nilai (Rupiah)")
-ax.set_title("Perbandingan Penjualan dan Keuntungan per Produk")
-ax.legend()
+ax.set_xticklabels(product_names, fontsize=9)
+ax.set_ylabel("Nilai (Rupiah)", fontsize=10)
+ax.set_title("Perbandingan Penjualan dan Keuntungan per Produk", fontsize=11)
+ax.legend(fontsize=9)
 ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
+fig.tight_layout()
 st.pyplot(fig)
