@@ -10,16 +10,53 @@ st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 st.markdown("""
 Aplikasi ini menghitung penjualan, keuntungan, total mesin, dan total operator berdasarkan input produk.
 
-## Rumus:
+st.markdown("""
+## 📘 Rumus dan Penjelasan
+
+### 1. Total Penjualan:
 \\[
-Z = c_1 X_1 + c_2 X_2 + \\dots + c_n X_n
+\\text{Total Penjualan}_i = \\text{Harga Jual/unit}_i \\times \\text{Jumlah Produksi}_i
 \\]
+
+👉 *Menghitung total pendapatan dari penjualan setiap produk.*
+
+---
+
+### 2. Total Keuntungan:
 \\[
-\\text{Total Operator Dibutuhkan} = \\sum (\\text{Mesin Produk}_i \\times \\text{Operator per Mesin}_i)
+\\text{Total Keuntungan}_i = \\text{Laba/unit}_i \\times \\text{Jumlah Produksi}_i
 \\]
+
+👉 *Menghitung total keuntungan bersih yang dihasilkan dari produk.*
+
+---
+
+### 3. Total Biaya Produksi:
 \\[
-\\text{Efisiensi} = \\frac{\\text{Total Keuntungan}}{\\text{Total Operator}}
+\\text{Biaya Produksi}_i = (\\text{Harga Jual/unit}_i - \\text{Laba/unit}_i) \\times \\text{Jumlah Produksi}_i
 \\]
+
+👉 *Biaya yang dikeluarkan untuk memproduksi setiap produk.*
+
+---
+
+### 4. Total Operator Produk:
+\\[
+\\text{Total Operator}_i = \\text{Jumlah Mesin}_i \\times \\text{Operator/Mesin}_i
+\\]
+
+👉 *Menghitung kebutuhan tenaga kerja untuk setiap produk.*
+
+---
+
+### 5. Efisiensi Produksi:
+\\[
+\\text{Efisiensi}_i = \\frac{\\text{Total Keuntungan}_i}{\\text{Total Operator}_i}
+\\]
+
+👉 *Menunjukkan seberapa besar keuntungan yang dihasilkan setiap 1 operator untuk produk tersebut.*
+
+---
 """)
 
 # Input jumlah produk
