@@ -26,6 +26,7 @@ st.markdown("👉 *Total tenaga kerja yang dibutuhkan.*")
 
 st.latex(r"\text{Efisiensi}_i = \frac{\text{Total Keuntungan}_i}{\text{Total Operator}_i}")
 st.markdown("👉 *Mengukur seberapa banyak keuntungan yang dihasilkan per operator.*")
+""")
 
 # Input jumlah produk
 num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
