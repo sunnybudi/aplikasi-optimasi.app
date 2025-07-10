@@ -10,7 +10,7 @@ st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 st.subheader("📘 Rumus-Rumus Umum Model M/M/1")
 st.latex(r"""
 \begin{align*}
-\rho &= \frac{\lambda}{\mu} \\
+Total Penjualan = Harga Jual per Unit × Jumlah Produksi \\
 L &= \frac{\lambda}{\mu - \lambda} \\
 L_q &= \frac{\lambda^2}{\mu(\mu - \lambda)} \\
 W &= \frac{1}{\mu - \lambda} \\
