@@ -140,7 +140,7 @@ for bars in [bar1, bar2]:
 
 # Label sumbu dan judul
 ax.set_xticks(x_pos)
-ax.set_xticklabels(all_product_names, rotation=10, fontsize=9)
+ax.set_xticklabels(all_product_names, rotation=0, fontsize=9, ha='center')
 ax.set_ylabel("Nilai (Rupiah)", fontsize=10)
 ax.set_title("Perbandingan Penjualan dan Keuntungan per Produk", fontsize=11)
 ax.legend(fontsize=9)
