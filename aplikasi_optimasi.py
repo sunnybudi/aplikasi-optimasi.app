@@ -28,22 +28,30 @@ num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
 product_names, jumlah_produksi, harga_jual, laba_per_unit = [], [], [], []
 mesin_digunakan, operator_per_mesin = [], []
 
-st.subheader("📥 Input Data Produk")
+# Sidebar: Input Jumlah Produk
+st.sidebar.header("📦 Jumlah Produk")
+num_products = st.sidebar.number_input("Jumlah Produk", min_value=1, value=2, step=1)
+
+# Sidebar: Input Data Produk
+st.sidebar.header("📥 Input Data Produk")
+
+# List untuk menyimpan data input
+product_names = []
+jumlah_produksi = []
+harga_jual = []
+laba_per_unit = []
+mesin_digunakan = []
+operator_per_mesin = []
+
+# Input per produk
 for i in range(num_products):
-    st.markdown(f"### Produk {i+1}")
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    with col1:
-        name = st.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"nama_{i}")
-    with col2:
-        qty = st.number_input("Jumlah Produksi", min_value=0, value=0, key=f"jumlah_{i}")
-    with col3:
-        harga = st.number_input("Harga Jual/unit", min_value=0, value=0, key=f"harga_{i}")
-    with col4:
-        laba = st.number_input("Keuntungan/unit", min_value=0, value=0, key=f"laba_{i}")
-    with col5:
-        mesin = st.number_input("Jumlah Mesin Digunakan", min_value=0, value=0, key=f"mesin_{i}")
-    with col6:
-        op_mesin = st.number_input(f"Operator/Mesin", min_value=1, value=1, key=f"opmesin_{i}")
+    st.sidebar.markdown(f"### 🔹 Produk {i+1}")
+    name = st.sidebar.text_input(f"Nama Produk {i+1}", value=f"Produk {i+1}", key=f"nama_{i}")
+    qty = st.sidebar.number_input("Jumlah Produksi", min_value=0, value=0, key=f"jumlah_{i}")
+    harga = st.sidebar.number_input("Harga Jual/unit", min_value=0, value=0, key=f"harga_{i}")
+    laba = st.sidebar.number_input("Keuntungan/unit", min_value=0, value=0, key=f"laba_{i}")
+    mesin = st.sidebar.number_input("Jumlah Mesin Digunakan", min_value=0, value=0, key=f"mesin_{i}")
+    op_mesin = st.sidebar.number_input("Operator/Mesin", min_value=1, value=1, key=f"opmesin_{i}")
 
     product_names.append(name)
     jumlah_produksi.append(qty)
