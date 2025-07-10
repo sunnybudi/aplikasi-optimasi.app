@@ -7,17 +7,19 @@ from matplotlib.ticker import FuncFormatter
 st.set_page_config(page_title="Optimasi Produksi - Mesin & Operator", layout="wide")
 st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 
-st.subheader("📘 Rumus-Rumus Umum Model M/M/1")
-st.latex(r"""
-\begin{align*}
-Total Penjualan = Harga Jual per Unit × Jumlah Produksi \\
-Total Keuntungan = Laba per Unit × Jumlah Produksi \\
-Total Biaya Produksi = (Harga Jual per Unit − Laba per Unit) × Jumlah Produksi \\
-Total Operator = Jumlah Mesin × Jumlah Operator per Mesin \\
-Efisiensi = Total Keuntungan ÷ Total Operator
-\end{align*}
-""")
+st.markdown(r"""
+## 📘 Rumus Optimasi Produksi
 
+$$
+\begin{aligned}
+\text{Total Penjualan} &= \text{Harga Jual per Unit} \times \text{Jumlah Produksi} \\
+\text{Total Keuntungan} &= \text{Laba per Unit} \times \text{Jumlah Produksi} \\
+\text{Total Biaya Produksi} &= (\text{Harga Jual per Unit} - \text{Laba per Unit}) \times \text{Jumlah Produksi} \\
+\text{Total Operator} &= \text{Jumlah Mesin} \times \text{Operator per Mesin} \\
+\text{Efisiensi} &= \frac{\text{Total Keuntungan}}{\text{Total Operator}}
+\end{aligned}
+$$
+""")
 
 # Input jumlah produk
 num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
