@@ -12,7 +12,7 @@ Aplikasi ini menghitung penjualan, keuntungan, total mesin, dan total operator b
 
 st.markdown("## 📘 Rumus dan Penjelasan")
 
-st.latex(r"\text{Total Penjualan}_i = \text{Harga Jual/unit}_i \times \text{Jumlah Produksi}_i")
+st.latex(r"Total Penjualan = Harga Jual per Unit × Jumlah Produksi")
 st.markdown("👉 *Pendapatan dari penjualan semua unit produk.*")
 
 st.latex(r"\text{Total Keuntungan}_i = \text{Laba/unit}_i \times \text{Jumlah Produksi}_i")
