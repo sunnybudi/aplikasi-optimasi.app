@@ -113,20 +113,22 @@ produk_efisien = df_prioritas.iloc[0]["Produk"]
 efisiensi_tertinggi = df_prioritas.iloc[0]["Efisiensi"]
 st.success(f"✅ Produk yang paling efisien diproduksi: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
 
-# Grafik (tanpa total operator, dan ukuran diperbaiki)
+# Grafik (rapih, bar total penjualan semua produk ditambahkan di akhir)
 st.subheader("📊 Diagram Perbandingan")
-x_pos = np.arange(len(product_names))
+x_pos = np.arange(len(product_names) + 1)  # Tambah 1 utk total semua produk
 width = 0.35
-fig, ax = plt.subplots(figsize=(8, 5))  # <<< Ukuran diperbaiki di sini
+fig, ax = plt.subplots()  # Default ukuran agar rapih
 
-bar1 = ax.bar(x_pos - width/2, total_keuntungan, width, label='Keuntungan', color='skyblue')
-bar2 = ax.bar(x_pos + width/2, total_penjualan, width, label='Penjualan', color='lightgreen')
+# Tambahkan data total keseluruhan di akhir
+all_product_names = product_names + ["Total Semua Produk"]
+total_penjualan_all = total_penjualan + [sum(total_penjualan)]
+total_keuntungan_all = total_keuntungan + [sum(total_keuntungan)]
 
-# Garis total penjualan semua produk
-total_line = ax.axhline(total_all_penjualan, color='red', linestyle='--', linewidth=2, label='Total Penjualan Semua Produk')
+bar1 = ax.bar(x_pos - width/2, total_keuntungan_all, width, label='Keuntungan', color='skyblue')
+bar2 = ax.bar(x_pos + width/2, total_penjualan_all, width, label='Penjualan', color='lightgreen')
 
 # Label batang
-max_val = max(total_penjualan + total_keuntungan) if total_penjualan else 0
+max_val = max(total_penjualan_all + total_keuntungan_all) if total_penjualan_all else 0
 ax.set_ylim(0, max_val * 1.3)
 for bars in [bar1, bar2]:
     for bar in bars:
@@ -134,15 +136,11 @@ for bars in [bar1, bar2]:
         ax.text(bar.get_x() + bar.get_width() / 2,
                 height + 0.01 * max_val,
                 f"{int(height):,}".replace(",", "."),
-                ha='center', va='bottom', fontsize=8)
+                ha='center', va='bottom', fontsize=9)
 
-# Label garis total
-ax.text(len(product_names) - 0.5, total_all_penjualan + 0.01 * max_val,
-        f"Total Semua Produk: {int(total_all_penjualan):,}".replace(",", "."),
-        color='red', ha='right', fontsize=9, fontweight='bold')
-
+# Label sumbu dan judul
 ax.set_xticks(x_pos)
-ax.set_xticklabels(product_names, fontsize=9)
+ax.set_xticklabels(all_product_names, rotation=10, fontsize=9)
 ax.set_ylabel("Nilai (Rupiah)", fontsize=10)
 ax.set_title("Perbandingan Penjualan dan Keuntungan per Produk", fontsize=11)
 ax.legend(fontsize=9)
