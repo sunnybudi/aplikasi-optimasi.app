@@ -11,11 +11,10 @@ st.subheader("📘 Rumus-Rumus Umum Model M/M/1")
 st.latex(r"""
 \begin{align*}
 Total Penjualan = Harga Jual per Unit × Jumlah Produksi \\
-L &= \frac{\lambda}{\mu - \lambda} \\
-L_q &= \frac{\lambda^2}{\mu(\mu - \lambda)} \\
-W &= \frac{1}{\mu - \lambda} \\
-W_q &= \frac{\lambda}{\mu(\mu - \lambda)} \\
-P_0 &= 1 - \rho
+Total Keuntungan = Laba per Unit × Jumlah Produksi \\
+Total Biaya Produksi = (Harga Jual per Unit − Laba per Unit) × Jumlah Produksi \\
+Total Operator = Jumlah Mesin × Jumlah Operator per Mesin \\
+Efisiensi = Total Keuntungan ÷ Total Operator
 \end{align*}
 """)
 
