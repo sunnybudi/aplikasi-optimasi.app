@@ -10,14 +10,14 @@ st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 st.markdown(r"""
 ## 📘 Rumus Model Antrian M/M/1
 
-$$
+\begin{align*}
 \rho = \frac{\lambda}{\mu} \\
 L = \frac{\lambda}{\mu - \lambda} \\
 L_q = \frac{\lambda^2}{\mu(\mu - \lambda)} \\
 W = \frac{1}{\mu - \lambda} \\
 W_q = \frac{\lambda}{\mu(\mu - \lambda)} \\
 P_0 = 1 - \rho
-$$
+\end{align*}
 """)
 
 # Input jumlah produk
