@@ -7,18 +7,18 @@ from matplotlib.ticker import FuncFormatter
 st.set_page_config(page_title="Optimasi Produksi - Mesin & Operator", layout="wide")
 st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 
-st.markdown(r"""
-## 📘 Rumus Model Antrian M/M/1
-
+st.subheader("📘 Rumus-Rumus Umum Model M/M/1")
+st.latex(r"""
 \begin{align*}
-\rho = \frac{\lambda}{\mu} \\
-L = \frac{\lambda}{\mu - \lambda} \\
-L_q = \frac{\lambda^2}{\mu(\mu - \lambda)} \\
-W = \frac{1}{\mu - \lambda} \\
-W_q = \frac{\lambda}{\mu(\mu - \lambda)} \\
-P_0 = 1 - \rho
+\rho &= \frac{\lambda}{\mu} \\
+L &= \frac{\lambda}{\mu - \lambda} \\
+L_q &= \frac{\lambda^2}{\mu(\mu - \lambda)} \\
+W &= \frac{1}{\mu - \lambda} \\
+W_q &= \frac{\lambda}{\mu(\mu - \lambda)} \\
+P_0 &= 1 - \rho
 \end{align*}
 """)
+
 
 # Input jumlah produk
 num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
