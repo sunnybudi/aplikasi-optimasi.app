@@ -11,15 +11,14 @@ st.markdown(r"""
 ## 📘 Rumus Optimasi Produksi
 
 $$
-\begin{aligned}
+\begin{array}{ll}
 \text{Total Penjualan} &= \text{Harga Jual per Unit} \times \text{Jumlah Produksi} \\
 \text{Total Keuntungan} &= \text{Laba per Unit} \times \text{Jumlah Produksi} \\
 \text{Total Biaya Produksi} &= (\text{Harga Jual per Unit} - \text{Laba per Unit}) \times \text{Jumlah Produksi} \\
 \text{Total Operator} &= \text{Jumlah Mesin} \times \text{Operator per Mesin} \\
-\text{Efisiensi} &= \frac{\text{Total Keuntungan}}{\text{Total Operator}}
-\end{aligned}
+\text{Efisiensi} &= \dfrac{\text{Total Keuntungan}}{\text{Total Operator}}
+\end{array}
 $$
-""")
 
 # Input jumlah produk
 num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
