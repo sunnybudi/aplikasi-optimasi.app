@@ -74,8 +74,7 @@ total_all_biaya = sum(total_biaya)
 total_mesin = sum(mesin_digunakan)
 total_operator = sum(total_operator_per_produk)
 
-# ---------- Tampilkan Tabel Ringkasan ----------
-st.subheader("📊 Ringkasan Perhitungan")
+# ---------- Dataframe Utama ----------
 df = pd.DataFrame({
     "Produk": product_names,
     "Jumlah Produksi": jumlah_produksi,
@@ -88,9 +87,15 @@ df = pd.DataFrame({
     "Total Keuntungan": total_keuntungan,
     "Total Biaya Produksi": total_biaya,
     "Efisiensi (Rp/Operator)": efisiensi_per_produk
-})# === Vertikal Ringkasan Produk (Rata kiri semua) ===
-# Konversi semua kolom jadi string agar bisa rata kiri
-df_vertikal = df.set_index("Produk").T.astype(str)
+})
+
+# ---------- Tabel Vertikal (diformat rapi & rata kiri) ----------
+df_clean = df.copy()
+for col in df_clean.columns:
+    if df_clean[col].dtype in [np.int64, np.float64]:
+        df_clean[col] = df_clean[col].apply(lambda x: f"{int(x):,}".replace(",", "."))
+
+df_vertikal = df_clean.set_index("Produk").T
 
 styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table_styles([
     {"selector": "th", "props": [("font-size", "13px"), ("text-align", "left")]},
@@ -98,9 +103,11 @@ styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table
     {"selector": "th.row_heading", "props": [("min-width", "200px"), ("text-align", "left")]},
     {"selector": "th.blank", "props": [("width", "20px")]}
 ])
+
+st.subheader("📊 Ringkasan Per Produk (Vertikal)")
 st.dataframe(styled_df)
 
-# === Tabel Ringkasan Total ===
+# ---------- Tabel Ringkasan Total ----------
 total_summary = {
     "Total Penjualan": format_rupiah(total_all_penjualan),
     "Total Biaya Produksi": format_rupiah(total_all_biaya),
@@ -114,7 +121,7 @@ df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nil
 st.subheader("🧾 Ringkasan Total Keseluruhan")
 st.table(df_total)
 
-# === Download CSV ===
+# ---------- Tombol Download CSV ----------
 csv_total = df_total.to_csv(index=False).encode("utf-8")
 st.download_button(
     label="⬇️ Download Ringkasan Total (CSV)",
