@@ -146,16 +146,6 @@ st.download_button(
     mime="text/csv"
 )
 
-
-# Tombol download terpisah
-csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
-st.download_button(
-    label="⬇️ Download Ringkasan Total (CSV)",
-    data=csv_total_vertical,
-    file_name="ringkasan_total.csv",
-    mime="text/csv"
-)
-
 # Tombol Download
 csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
 st.download_button(
