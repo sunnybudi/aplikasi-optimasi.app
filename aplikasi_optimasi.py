@@ -9,7 +9,7 @@ st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator Produksi")
 
 # ---------- Penjelasan Rumus ----------
 st.subheader(r"""
-## 📘 Rumus Optimasi Produksi
+📘 Rumus Optimasi Produksi
 
 $$
 \begin{array}{ll}
