@@ -135,9 +135,8 @@ df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nil
 
 st.subheader("🧾 Ringkasan Total Keseluruhan")
 
-# Tampilkan sebagai tabel vertikal
 df_total_vertical = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
-st.table(df_total_vertical)
+st.dataframe(df_total_vertical, use_container_width=True)
 
 # Tombol Download
 csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
