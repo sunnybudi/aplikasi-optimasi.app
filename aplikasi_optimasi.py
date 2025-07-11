@@ -88,33 +88,40 @@ df = pd.DataFrame({
     "Total Keuntungan": total_keuntungan,
     "Total Biaya Produksi": total_biaya,
     "Efisiensi (Rp/Operator)": efisiensi_per_produk
-})
-df_vertikal = df.set_index("Produk").T
+})# === Vertikal Ringkasan Produk (Rata kiri semua) ===
+# Konversi semua kolom jadi string agar bisa rata kiri
+df_vertikal = df.set_index("Produk").T.astype(str)
 
-styled_df = df_vertikal.style.format({
-    "Total Penjualan": "Rp {:,.0f}",
-    "Total Keuntungan": "Rp {:,.0f}",
-    "Total Biaya Produksi": "Rp {:,.0f}",
-    "Efisiensi (Rp/Operator)": "Rp {:,.0f}"
-}).set_properties(**{'text-align': 'left'}) \
-  .set_table_styles([
-      {"selector": "th", "props": [("font-size", "13px"), ("text-align", "left")]},
-      {"selector": "td", "props": [("text-align", "left")]},
-      {"selector": "th.row_heading", "props": [("min-width", "200px"), ("text-align", "left")]},  # Kolom kiri (index)
-      {"selector": "th.blank", "props": [("width", "20px")]}  # Sudut kiri atas
-  ])
-
-st.subheader("📊 Ringkasan Per Produk (Vertikal)")
+styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table_styles([
+    {"selector": "th", "props": [("font-size", "13px"), ("text-align", "left")]},
+    {"selector": "td", "props": [("text-align", "left")]},
+    {"selector": "th.row_heading", "props": [("min-width", "200px"), ("text-align", "left")]},
+    {"selector": "th.blank", "props": [("width", "20px")]}
+])
 st.dataframe(styled_df)
 
+# === Tabel Ringkasan Total ===
+total_summary = {
+    "Total Penjualan": format_rupiah(total_all_penjualan),
+    "Total Biaya Produksi": format_rupiah(total_all_biaya),
+    "Total Keuntungan Bersih": format_rupiah(total_all_keuntungan),
+    "Total Mesin Digunakan": f"{total_mesin} unit",
+    "Total Operator Dibutuhkan": f"{total_operator} orang"
+}
 
-# ---------- Ringkasan Total ----------
-st.markdown("### 💰 Total Ringkasan")
-st.write(f"📦 Total Penjualan: {format_rupiah(total_all_penjualan)}")
-st.write(f"💸 Total Biaya Produksi: {format_rupiah(total_all_biaya)}")
-st.write(f"✅ Total Keuntungan Bersih: {format_rupiah(total_all_keuntungan)}")
-st.write(f"🛠️ Total Mesin Digunakan: {total_mesin} unit")
-st.write(f"👷 Total Operator Dibutuhkan: {total_operator} orang")
+df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
+
+st.subheader("🧾 Ringkasan Total Keseluruhan")
+st.table(df_total)
+
+# === Download CSV ===
+csv_total = df_total.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Ringkasan Total (CSV)",
+    data=csv_total,
+    file_name="ringkasan_total.csv",
+    mime="text/csv"
+)
 
 # ---------- Rekomendasi Produk Efisien ----------
 st.subheader("📌 Rekomendasi Prioritas Produksi")
