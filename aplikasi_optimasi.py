@@ -7,7 +7,7 @@ from matplotlib.ticker import FuncFormatter
 st.set_page_config(page_title="Optimasi Produksi - Mesin & Operator", layout="wide")
 st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
 
-# Penjelasan Rumus
+# ---------- Penjelasan Rumus ----------
 st.markdown(r"""
 ## 📘 Rumus Optimasi Produksi
 
@@ -67,7 +67,7 @@ efisiensi_per_produk = [
     for i in range(num_products)
 ]
 
-# Ringkasan total
+# ---------- Ringkasan Total ----------
 total_all_penjualan = sum(total_penjualan)
 total_all_keuntungan = sum(total_keuntungan)
 total_all_biaya = sum(total_biaya)
@@ -90,7 +90,7 @@ df = pd.DataFrame({
     "Efisiensi (Rp/Operator)": efisiensi_per_produk
 })
 
-# ---------- Tabel Vertikal (diformat rapi & rata kiri) ----------
+# ---------- Format Vertikal dan Rapi ----------
 df_clean = df.copy()
 for col in df_clean.columns:
     if col in ["Total Penjualan", "Total Keuntungan", "Total Biaya Produksi"]:
@@ -108,9 +108,7 @@ for col in df_clean.columns:
     elif col == "Operator/Mesin":
         df_clean[col] = df_clean[col].apply(lambda x: f"{int(x)} orang")
 
-
 df_vertikal = df_clean.set_index("Produk").T
-
 styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table_styles([
     {"selector": "th", "props": [("font-size", "13px"), ("text-align", "left")]},
     {"selector": "td", "props": [("text-align", "left")]},
@@ -118,44 +116,34 @@ styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table
     {"selector": "th.blank", "props": [("width", "20px")]}
 ])
 
-st.subheader("📊 Ringkasan Produk")
+# ---------- Tampilkan Ringkasan Per Produk ----------
+st.subheader("📊 Ringkasan Per Produk (Vertikal)")
 st.dataframe(styled_df)
 
-# ---------- Tabel Ringkasan Total ----------
+# ---------- Tampilkan Ringkasan Total ----------
 total_summary = {
     "Total Produksi": f"{int(total_all_produksi)} unit",
     "Total Penjualan": format_rupiah(total_all_penjualan),
     "Total Biaya Produksi": format_rupiah(total_all_biaya),
     "Total Keuntungan Bersih": format_rupiah(total_all_keuntungan),
-    "Total Mesin Digunakan": f"{total_mesin} unit",
-    "Total Operator Dibutuhkan": f"{total_operator} orang"
+    "Total Mesin Digunakan": f"{int(total_mesin)} unit",
+    "Total Operator Dibutuhkan": f"{int(total_operator)} orang"
 }
-
 df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
 
 st.subheader("🧾 Ringkasan Total Keseluruhan")
-df_total_vertical = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
-st.table(df_total_vertical)
+st.dataframe(df_total)
 
-# Tombol download terpisah
-csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
+# ---------- Tombol Download CSV (opsional tambahan) ----------
+csv_total = df_total.to_csv(index=False).encode("utf-8")
 st.download_button(
     label="⬇️ Download Ringkasan Total (CSV)",
-    data=csv_total_vertical,
+    data=csv_total,
     file_name="ringkasan_total.csv",
     mime="text/csv"
 )
 
-# Tombol Download
-csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
-st.download_button(
-    label="⬇️ Download Ringkasan Total (CSV)",
-    data=csv_total_vertical,
-    file_name="ringkasan_total.csv",
-    mime="text/csv"
-)
-
-# ---------- Rekomendasi Produk Efisien ----------
+# ---------- Rekomendasi Produk Paling Efisien ----------
 st.subheader("📌 Rekomendasi Prioritas Produksi")
 df_prioritas = pd.DataFrame({
     "Produk": product_names,
@@ -167,14 +155,14 @@ produk_efisien = df_prioritas.iloc[0]["Produk"]
 efisiensi_tertinggi = df_prioritas.iloc[0]["Efisiensi"]
 st.success(f"✅ Produk yang paling efisien diproduksi: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
 
-# ---------- Grafik ----------
+# ---------- Grafik Perbandingan ----------
 st.subheader("📊 Diagram Perbandingan")
 x_pos = np.arange(len(product_names) + 1)
 width = 0.35
 fig, ax = plt.subplots()
 all_product_names = product_names + ["Total Semua Produk"]
-total_penjualan_all = total_penjualan + [sum(total_penjualan)]
-total_keuntungan_all = total_keuntungan + [sum(total_keuntungan)]
+total_penjualan_all = total_penjualan + [total_all_penjualan]
+total_keuntungan_all = total_keuntungan + [total_all_keuntungan]
 
 bar1 = ax.bar(x_pos - width/2, total_keuntungan_all, width, label='Keuntungan', color='skyblue')
 bar2 = ax.bar(x_pos + width/2, total_penjualan_all, width, label='Penjualan', color='lightgreen')
