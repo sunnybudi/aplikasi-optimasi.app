@@ -73,6 +73,7 @@ total_all_keuntungan = sum(total_keuntungan)
 total_all_biaya = sum(total_biaya)
 total_mesin = sum(mesin_digunakan)
 total_operator = sum(total_operator_per_produk)
+total_all_produksi = sum(jumlah_produksi)
 
 # ---------- Dataframe Utama ----------
 df = pd.DataFrame({
@@ -117,11 +118,12 @@ styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table
     {"selector": "th.blank", "props": [("width", "20px")]}
 ])
 
-st.subheader("📊 Ringkasan Per Produk (Vertikal)")
+st.subheader("📊 Ringkasan Produk")
 st.dataframe(styled_df)
 
 # ---------- Tabel Ringkasan Total ----------
 total_summary = {
+    "Total Produksi": f"{int(total_all_produksi)} unit",
     "Total Penjualan": format_rupiah(total_all_penjualan),
     "Total Biaya Produksi": format_rupiah(total_all_biaya),
     "Total Keuntungan Bersih": format_rupiah(total_all_keuntungan),
@@ -132,13 +134,16 @@ total_summary = {
 df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
 
 st.subheader("🧾 Ringkasan Total Keseluruhan")
-st.table(df_total)
 
-# ---------- Tombol Download CSV ----------
-csv_total = df_total.to_csv(index=False).encode("utf-8")
+# Tampilkan sebagai tabel vertikal
+df_total_vertical = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
+st.table(df_total_vertical)
+
+# Tombol Download
+csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
 st.download_button(
     label="⬇️ Download Ringkasan Total (CSV)",
-    data=csv_total,
+    data=csv_total_vertical,
     file_name="ringkasan_total.csv",
     mime="text/csv"
 )
