@@ -90,12 +90,23 @@ df = pd.DataFrame({
     "Efisiensi (Rp/Operator)": efisiensi_per_produk
 })
 df_vertikal = df.set_index("Produk").T
-st.dataframe(df_vertikal.style.format({
+
+styled_df = df_vertikal.style.format({
     "Total Penjualan": "Rp {:,.0f}",
     "Total Keuntungan": "Rp {:,.0f}",
     "Total Biaya Produksi": "Rp {:,.0f}",
     "Efisiensi (Rp/Operator)": "Rp {:,.0f}"
-}))
+}).set_properties(**{'text-align': 'left'}) \
+  .set_table_styles([
+      {"selector": "th", "props": [("font-size", "13px"), ("text-align", "left")]},
+      {"selector": "td", "props": [("text-align", "left")]},
+      {"selector": "th.row_heading", "props": [("min-width", "200px"), ("text-align", "left")]},  # Kolom kiri (index)
+      {"selector": "th.blank", "props": [("width", "20px")]}  # Sudut kiri atas
+  ])
+
+st.subheader("📊 Ringkasan Per Produk (Vertikal)")
+st.dataframe(styled_df)
+
 
 # ---------- Ringkasan Total ----------
 st.markdown("### 💰 Total Ringkasan")
