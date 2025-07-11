@@ -89,7 +89,8 @@ df = pd.DataFrame({
     "Total Biaya Produksi": total_biaya,
     "Efisiensi (Rp/Operator)": efisiensi_per_produk
 })
-st.dataframe(df.style.format({
+df_vertikal = df.set_index("Produk").T
+st.dataframe(df_vertikal.style.format({
     "Total Penjualan": "Rp {:,.0f}",
     "Total Keuntungan": "Rp {:,.0f}",
     "Total Biaya Produksi": "Rp {:,.0f}",
