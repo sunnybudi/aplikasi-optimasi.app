@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 st.set_page_config(page_title="Optimasi Produksi - Mesin & Operator", layout="wide")
-st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator per Produk")
+st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator Produksi")
 
 # ---------- Penjelasan Rumus ----------
-st.markdown(r"""
+st.subheader(r"""
 ## 📘 Rumus Optimasi Produksi
 
 $$
@@ -117,7 +117,7 @@ styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table
 ])
 
 # ---------- Tampilkan Ringkasan Per Produk ----------
-st.subheader("📊 Ringkasan Per Produk (Vertikal)")
+st.subheader("📊 Ringkasan Produksi")
 st.dataframe(styled_df)
 
 # ---------- Tampilkan Ringkasan Total ----------
@@ -131,7 +131,7 @@ total_summary = {
 }
 df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
 
-st.subheader("🧾 Ringkasan Total Keseluruhan")
+st.subheader("🧾 Ringkasan Total Produksi")
 st.dataframe(df_total)
 
 # ---------- Rekomendasi Produk Paling Efisien ----------
