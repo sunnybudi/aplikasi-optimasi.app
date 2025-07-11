@@ -134,15 +134,6 @@ df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nil
 st.subheader("🧾 Ringkasan Total Keseluruhan")
 st.dataframe(df_total)
 
-# ---------- Tombol Download CSV (opsional tambahan) ----------
-csv_total = df_total.to_csv(index=False).encode("utf-8")
-st.download_button(
-    label="⬇️ Download Ringkasan Total (CSV)",
-    data=csv_total,
-    file_name="ringkasan_total.csv",
-    mime="text/csv"
-)
-
 # ---------- Rekomendasi Produk Paling Efisien ----------
 st.subheader("📌 Rekomendasi Prioritas Produksi")
 df_prioritas = pd.DataFrame({
