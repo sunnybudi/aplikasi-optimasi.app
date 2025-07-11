@@ -134,9 +134,27 @@ total_summary = {
 df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
 
 st.subheader("🧾 Ringkasan Total Keseluruhan")
-
 df_total_vertical = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
-st.dataframe(df_total_vertical, use_container_width=True)
+st.table(df_total_vertical)
+
+# Tombol download terpisah
+csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Ringkasan Total (CSV)",
+    data=csv_total_vertical,
+    file_name="ringkasan_total.csv",
+    mime="text/csv"
+)
+
+
+# Tombol download terpisah
+csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
+st.download_button(
+    label="⬇️ Download Ringkasan Total (CSV)",
+    data=csv_total_vertical,
+    file_name="ringkasan_total.csv",
+    mime="text/csv"
+)
 
 # Tombol Download
 csv_total_vertical = df_total_vertical.to_csv(index=False).encode("utf-8")
