@@ -92,8 +92,21 @@ df = pd.DataFrame({
 # ---------- Tabel Vertikal (diformat rapi & rata kiri) ----------
 df_clean = df.copy()
 for col in df_clean.columns:
-    if df_clean[col].dtype in [np.int64, np.float64]:
-        df_clean[col] = df_clean[col].apply(lambda x: f"{int(x):,}".replace(",", "."))
+    if col in ["Total Penjualan", "Total Keuntungan", "Total Biaya Produksi"]:
+        df_clean[col] = df_clean[col].apply(lambda x: f"Rp {int(x):,}".replace(",", "."))
+    elif col in ["Harga Jual/unit", "Keuntungan/unit"]:
+        df_clean[col] = df_clean[col].apply(lambda x: f"Rp {int(x):,}".replace(",", ".") + " /unit")
+    elif col == "Efisiensi (Rp/Operator)":
+        df_clean[col] = df_clean[col].apply(lambda x: f"Rp {int(x):,}".replace(",", ".") + " /orang")
+    elif col == "Jumlah Produksi":
+        df_clean[col] = df_clean[col].apply(lambda x: f"{int(x)} unit")
+    elif col == "Mesin Digunakan":
+        df_clean[col] = df_clean[col].apply(lambda x: f"{int(x)} unit")
+    elif col == "Total Operator":
+        df_clean[col] = df_clean[col].apply(lambda x: f"{int(x)} orang")
+    elif col == "Operator/Mesin":
+        df_clean[col] = df_clean[col].apply(lambda x: f"{int(x)} orang")
+
 
 df_vertikal = df_clean.set_index("Produk").T
 
