@@ -36,11 +36,10 @@ with st.sidebar:
         laba_per_unit.append(laba)
         mesin_digunakan.append(mesin)
         operator_per_mesin.append(op_mesin)
-        
-        st.header("⚙️ Batasan Sumber Daya")
-        total_operator_tersedia = st.number_input("Jumlah Operator Tersedia", min_value=1, value=10)
-        total_mesin_tersedia = st.number_input("Jumlah Mesin Tersedia", min_value=1, value=5)
 
+    st.header("⚙️ Batasan Sumber Daya")
+    total_operator_tersedia = st.number_input("Jumlah Operator Tersedia", min_value=1, value=10)
+    total_mesin_tersedia = st.number_input("Jumlah Mesin Tersedia", min_value=1, value=5)
 
 # ---------- Perhitungan ----------
 def format_rupiah(nilai):
@@ -61,6 +60,8 @@ total_all_keuntungan = sum(total_keuntungan)
 total_all_biaya = sum(total_biaya)
 total_mesin = sum(mesin_digunakan)
 total_operator = sum(total_operator_per_produk)
+total_all_produksi = sum(jumlah_produksi)
+
 # ---------- Validasi Batasan ----------
 st.subheader("🚦 Validasi Sumber Daya")
 if total_operator > total_operator_tersedia:
@@ -72,8 +73,6 @@ if total_mesin > total_mesin_tersedia:
     st.error(f"❌ Total mesin yang dibutuhkan ({total_mesin} unit) MELEBIHI batas tersedia ({total_mesin_tersedia} unit)")
 else:
     st.success(f"✅ Total mesin yang dibutuhkan: {total_mesin} unit (tersedia: {total_mesin_tersedia})")
-
-total_all_produksi = sum(jumlah_produksi)
 
 # ---------- Tampilan Hasil ----------
 st.subheader("📘 Rumus Perhitungan Produksi")
