@@ -76,16 +76,20 @@ with tab1:
     \end{aligned}
     $$
     """)
-    st.markdown("""
+    st.markdown(r"""
     **Keterangan:**
     
-    - \( Z \): Total keuntungan yang ingin dimaksimalkan  
-    - \( c_i \): Keuntungan per unit produk ke-\( i \)  
-    - \( X_i \): Jumlah unit produk ke-\( i \) yang diproduksi  
-    - \( a_{1i} \): Jumlah operator per unit produk ke-\( i \)  
-    - \( b_1 \): Total operator yang tersedia  
-    - \( a_{2i} \): Jumlah mesin per unit produk ke-\( i \)  
-    - \( b_2 \): Total mesin yang tersedia
+    $$
+    \begin{aligned}
+    Z & : \text{Total keuntungan yang ingin dimaksimalkan} \\
+    c_i & : \text{Keuntungan per unit produk ke-}i \\
+    X_i & : \text{Jumlah unit produk ke-}i\text{ yang diproduksi} \\
+    a_{1i} & : \text{Jumlah operator per unit produk ke-}i \\
+    b_1 & : \text{Total operator yang tersedia} \\
+    a_{2i} & : \text{Jumlah mesin per unit produk ke-}i \\
+    b_2 & : \text{Total mesin yang tersedia}
+    \end{aligned}
+    $$
     """)
 
 
