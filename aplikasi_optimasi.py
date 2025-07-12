@@ -70,11 +70,22 @@ with tab1:
     \begin{aligned}
     \text{Maksimalkan } &Z = c_1X_1 + c_2X_2 + \cdots + c_nX_n \\
     \text{dengan kendala:} \\
-    &a_{11}X_1 + a_{12}X_2 + \cdots + a_{1n}X_n \leq b_1 \\
-    &a_{21}X_1 + a_{22}X_2 + \cdots + a_{2n}X_n \leq b_2 \\
+    &a_{11}X_1 + a_{12}X_2 + \cdots + a_{1n}X_n \leq b_1 \quad \text{(kendala operator)} \\
+    &a_{21}X_1 + a_{22}X_2 + \cdots + a_{2n}X_n \leq b_2 \quad \text{(kendala mesin)} \\
     &X_1, X_2, \dots, X_n \geq 0
     \end{aligned}
     $$
+    """)
+    st.markdown("""
+    **Keterangan:**
+
+    - \( Z \): Total keuntungan yang ingin dimaksimalkan  
+    - \( c_i \): Keuntungan per unit produk ke-\( i \)  
+    - \( X_i \): Jumlah unit produk ke-\( i \) yang diproduksi  
+    - \( a_{1i} \): Jumlah operator per unit produk ke-\( i \)  
+    - \( b_1 \): Total operator yang tersedia  
+    - \( a_{2i} \): Jumlah mesin per unit produk ke-\( i \)  
+    - \( b_2 \): Total mesin yang tersedia
     """)
 
     total_operator_tersedia = st.number_input("Masukkan Total Operator yang Tersedia", min_value=1, value=10)
@@ -101,19 +112,7 @@ with tab1:
 
 # ---------- Tab 2: Perhitungan Produksi ----------
 with tab2:
-    st.subheader("📘 Rumus Perhitungan Produksi")
-    st.markdown(r"""
-    $$
-    \begin{array}{ll}
-    \text{Total Penjualan} &= \text{Harga Jual per Unit} \times \text{Jumlah Produksi} \\
-    \text{Total Keuntungan} &= \text{Laba per Unit} \times \text{Jumlah Produksi} \\
-    \text{Total Biaya Produksi} &= (\text{Harga Jual per Unit} - \text{Laba per Unit}) \times \text{Jumlah Produksi} \\
-    \text{Total Operator} &= \text{Jumlah Mesin} \times \text{Operator per Mesin} \\
-    \text{Efisiensi} &= \dfrac{\text{Total Keuntungan}}{\text{Total Operator}}
-    \end{array}
-    $$
-    """)
-
+    st.subheader("📊 Perhitungan Produksi")
     df = pd.DataFrame({
         "Produk": product_names,
         "Jumlah Produksi": jumlah_produksi,
@@ -142,7 +141,6 @@ with tab2:
         elif col == "Operator/Mesin":
             df[col] = df[col].apply(lambda x: f"{int(x)} orang")
 
-    st.subheader("📊 Ringkasan Produksi")
     st.dataframe(df.set_index("Produk").T.style.set_properties(**{'text-align': 'left'}))
 
     total_summary = {
