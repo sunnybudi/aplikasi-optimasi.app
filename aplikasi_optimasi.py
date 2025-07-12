@@ -172,28 +172,6 @@ with tab2:
     st.subheader("🧾 Ringkasan Total Produksi")
     st.dataframe(df_total)
 
-        # ⚙️ Tambahan: Evaluasi Kendala Kapasitas Operator & Mesin
-    st.subheader("⚖️ Evaluasi Kecukupan Mesin dan Operator")
-
-    st.markdown("### 🔍 Hasil Evaluasi:")
-
-    if total_mesin > total_mesin_tersedia:
-        st.error(f"❌ Mesin yang dibutuhkan (**{int(total_mesin)}**) melebihi kapasitas tersedia (**{total_mesin_tersedia}**) unit.")
-    else:
-        st.success(f"✅ Mesin cukup: {int(total_mesin)} digunakan dari kapasitas {total_mesin_tersedia} unit.")
-
-    if total_operator > total_operator_tersedia:
-        st.error(f"❌ Operator yang dibutuhkan (**{int(total_operator)}**) melebihi kapasitas tersedia (**{total_operator_tersedia}**) orang.")
-    else:
-        st.success(f"✅ Operator cukup: {int(total_operator)} digunakan dari kapasitas {total_operator_tersedia} orang.")
-
-    # Persentase penggunaan kapasitas
-    persen_mesin = (total_mesin / total_mesin_tersedia) * 100 if total_mesin_tersedia > 0 else 0
-    persen_operator = (total_operator / total_operator_tersedia) * 100 if total_operator_tersedia > 0 else 0
-
-    st.markdown(f"**📊 Persentase Penggunaan Mesin:** {persen_mesin:.1f}%")
-    st.markdown(f"**📊 Persentase Penggunaan Operator:** {persen_operator:.1f}%")
-
     df_prioritas = pd.DataFrame({
         "Produk": product_names,
         "Efisiensi": efisiensi_per_produk,
