@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
+from pulp import LpMaximize, LpProblem, LpVariable, lpSum
 
 st.set_page_config(page_title="Optimasi Produksi - Mesin & Operator", layout="wide")
 st.title("🔧 Optimasi Produksi - Jumlah Mesin & Operator Produksi")
@@ -19,6 +20,29 @@ $$
 \text{Total Operator} &= \text{Jumlah Mesin} \times \text{Operator per Mesin} \\
 \text{Efisiensi} &= \dfrac{\text{Total Keuntungan}}{\text{Total Operator}}
 \end{array}
+$$
+""")
+
+st.markdown(r"""
+## 📈 Rumus Optimasi Produksi (Linear Programming)
+Misalkan:
+- \( X_1, X_2, \dots, X_n \): jumlah unit masing-masing produk
+- \( c_1, c_2, \dots, c_n \): keuntungan per unit masing-masing produk
+- \( o_1, o_2, \dots, o_n \): operator per unit produk (mesin × operator per mesin)
+- \( m_1, m_2, \dots, m_n \): mesin per unit produk
+- \( O \): total operator tersedia
+- \( M \): total mesin tersedia
+
+### Fungsi Objektif:
+$$
+\text{Maksimalkan } Z = c_1X_1 + c_2X_2 + \dots + c_nX_n
+$$
+
+### Kendala:
+$$
+o_1X_1 + o_2X_2 + \dots + o_nX_n \leq O \\
+m_1X_1 + m_2X_2 + \dots + m_nX_n \leq M \\
+X_1, X_2, \dots, X_n \geq 0
 $$
 """)
 
@@ -52,6 +76,10 @@ with st.sidebar:
         mesin_digunakan.append(mesin)
         operator_per_mesin.append(op_mesin)
 
+    st.header("⚙️ Input untuk Optimasi")
+    total_operator_avail = st.number_input("Total Operator Tersedia", min_value=1, value=100)
+    total_mesin_avail = st.number_input("Total Mesin Tersedia", min_value=1, value=50)
+
 # ---------- Fungsi Tambahan ----------
 def format_rupiah(nilai):
     return f"Rp {nilai:,.0f}".replace(",", ".")
@@ -67,7 +95,21 @@ efisiensi_per_produk = [
     for i in range(num_products)
 ]
 
-# ---------- Ringkasan Total ----------
+# ---------- Optimasi Produksi Otomatis ----------
+st.subheader("📌 Hasil Optimasi Produksi Maksimum")
+model = LpProblem("Optimasi_Produksi", LpMaximize)
+X = [LpVariable(f"X{i+1}", lowBound=0, cat='Integer') for i in range(num_products)]
+model += lpSum([laba_per_unit[i] * X[i] for i in range(num_products)])
+model += lpSum([mesin_digunakan[i] * operator_per_mesin[i] * X[i] for i in range(num_products)]) <= total_operator_avail
+model += lpSum([mesin_digunakan[i] * X[i] for i in range(num_products)]) <= total_mesin_avail
+model.solve()
+
+for i, var in enumerate(X):
+    st.write(f"🔹 {product_names[i]} ➜ Jumlah Optimal: **{int(var.value())} unit**")
+
+st.success(f"🎯 Total Keuntungan Maksimum: **{format_rupiah(int(model.objective.value()))}**")
+
+# ---------- Ringkasan dan Visualisasi ----------
 total_all_penjualan = sum(total_penjualan)
 total_all_keuntungan = sum(total_keuntungan)
 total_all_biaya = sum(total_biaya)
@@ -90,7 +132,8 @@ df = pd.DataFrame({
     "Efisiensi (Rp/Operator)": efisiensi_per_produk
 })
 
-# ---------- Format Vertikal dan Rapi ----------
+# Format tampilan
+st.subheader("📊 Ringkasan Produksi")
 df_clean = df.copy()
 for col in df_clean.columns:
     if col in ["Total Penjualan", "Total Keuntungan", "Total Biaya Produksi"]:
@@ -108,33 +151,32 @@ for col in df_clean.columns:
     elif col == "Operator/Mesin":
         df_clean[col] = df_clean[col].apply(lambda x: f"{int(x)} orang")
 
-df_vertikal = df_clean.set_index("Produk").T
-styled_df = df_vertikal.style.set_properties(**{'text-align': 'left'}).set_table_styles([
-    {"selector": "th", "props": [("font-size", "13px"), ("text-align", "left")]},
-    {"selector": "td", "props": [("text-align", "left")]},
-    {"selector": "th.row_heading", "props": [("min-width", "200px"), ("text-align", "left")]},
-    {"selector": "th.blank", "props": [("width", "20px")]}
-])
+st.dataframe(df_clean.set_index("Produk").T)
 
-# ---------- Tampilkan Ringkasan Per Produk ----------
-st.subheader("📊 Ringkasan Produksi")
-st.dataframe(styled_df)
-
-# ---------- Tampilkan Ringkasan Total ----------
-total_summary = {
-    "Total Produksi": f"{int(total_all_produksi)} unit",
-    "Total Penjualan": format_rupiah(total_all_penjualan),
-    "Total Biaya Produksi": format_rupiah(total_all_biaya),
-    "Total Keuntungan Bersih": format_rupiah(total_all_keuntungan),
-    "Total Mesin Digunakan": f"{int(total_mesin)} unit",
-    "Total Operator Dibutuhkan": f"{int(total_operator)} orang"
-}
-df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
-
+# Ringkasan Total
 st.subheader("🧾 Ringkasan Total Produksi")
+df_total = pd.DataFrame({
+    "Keterangan": [
+        "Total Produksi",
+        "Total Penjualan",
+        "Total Biaya Produksi",
+        "Total Keuntungan Bersih",
+        "Total Mesin Digunakan",
+        "Total Operator Dibutuhkan"
+    ],
+    "Nilai": [
+        f"{int(total_all_produksi)} unit",
+        format_rupiah(total_all_penjualan),
+        format_rupiah(total_all_biaya),
+        format_rupiah(total_all_keuntungan),
+        f"{int(total_mesin)} unit",
+        f"{int(total_operator)} orang"
+    ]
+})
+
 st.dataframe(df_total)
 
-# ---------- Rekomendasi Produk Paling Efisien ----------
+# Prioritas Efisien
 st.subheader("📌 Rekomendasi Prioritas Produksi")
 df_prioritas = pd.DataFrame({
     "Produk": product_names,
@@ -146,7 +188,7 @@ produk_efisien = df_prioritas.iloc[0]["Produk"]
 efisiensi_tertinggi = df_prioritas.iloc[0]["Efisiensi"]
 st.success(f"✅ Produk yang paling efisien diproduksi: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
 
-# ---------- Grafik Perbandingan ----------
+# Grafik Perbandingan
 st.subheader("📊 Diagram Perbandingan")
 x_pos = np.arange(len(product_names) + 1)
 width = 0.35
