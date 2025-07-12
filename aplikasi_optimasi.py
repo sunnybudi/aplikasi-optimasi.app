@@ -118,6 +118,19 @@ with tab1:
 
 # ---------- Tab 2: Perhitungan Produksi ----------
 with tab2:
+    st.subheader("📘 Rumus Perhitungan Produksi")
+    st.markdown(r"""
+    $$
+    \begin{array}{ll}
+    \text{Total Penjualan} &= \text{Harga Jual per Unit} \times \text{Jumlah Produksi} \\
+    \text{Total Keuntungan} &= \text{Laba per Unit} \times \text{Jumlah Produksi} \\
+    \text{Total Biaya Produksi} &= (\text{Harga Jual per Unit} - \text{Laba per Unit}) \times \text{Jumlah Produksi} \\
+    \text{Total Operator} &= \text{Jumlah Mesin} \times \text{Operator per Mesin} \\
+    \text{Efisiensi} &= \dfrac{\text{Total Keuntungan}}{\text{Total Operator}}
+    \end{array}
+    $$
+    """)
+    
     st.subheader("📊 Perhitungan Produksi")
     df = pd.DataFrame({
         "Produk": product_names,
