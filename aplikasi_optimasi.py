@@ -41,10 +41,6 @@ with st.sidebar:
         mesin_digunakan.append(mesin)
         operator_per_mesin.append(op_mesin)
 
-    st.header("⚙️ Input Batasan Produksi")
-    total_operator_tersedia = st.number_input("Total Operator Tersedia", min_value=1, value=10)
-    total_mesin_tersedia = st.number_input("Total Mesin Tersedia", min_value=1, value=5)
-
 # ---------- Perhitungan ----------
 def format_rupiah(nilai):
     return f"Rp {nilai:,.0f}".replace(",", ".")
@@ -66,10 +62,38 @@ total_mesin = sum(mesin_digunakan)
 total_operator = sum(total_operator_per_produk)
 total_all_produksi = sum(jumlah_produksi)
 
-# ---------- Tab 1: Optimasi ----------
+# ---------- Tab 1: Optimasi Produksi ----------
 with tab1:
     st.subheader("📈 Optimasi Produksi Berdasarkan Keuntungan Maksimum")
-    st.markdown(r"""...""")  # rumus tidak perlu diubah
+    st.markdown(r"""
+    $$
+    \begin{aligned}
+    \text{Maksimalkan } &Z = c_1X_1 + c_2X_2 + \cdots + c_nX_n \\
+    \text{dengan kendala:} \\
+    &a_{11}X_1 + a_{12}X_2 + \cdots + a_{1n}X_n \leq b_1 \quad \text{(kendala operator)} \\
+    &a_{21}X_1 + a_{22}X_2 + \cdots + a_{2n}X_n \leq b_2 \quad \text{(kendala mesin)} \\
+    &X_1, X_2, \dots, X_n \geq 0
+    \end{aligned}
+    $$
+    """)
+    st.markdown(r"""
+    **Keterangan:**
+    
+    $$
+    \begin{aligned}
+    Z & : \text{Total keuntungan yang ingin dimaksimalkan} \\
+    c_i & : \text{Keuntungan per unit produk ke-}i \\
+    X_i & : \text{Jumlah unit produk ke-}i\text{ yang diproduksi} \\
+    a_{1i} & : \text{Jumlah operator per unit produk ke-}i \\
+    b_1 & : \text{Total operator yang tersedia} \\
+    a_{2i} & : \text{Jumlah mesin per unit produk ke-}i \\
+    b_2 & : \text{Total mesin yang tersedia}
+    \end{aligned}
+    $$
+    """)
+    
+    total_operator_tersedia = st.number_input("Masukkan Total Operator yang Tersedia", min_value=1, value=10)
+    total_mesin_tersedia = st.number_input("Masukkan Total Mesin yang Tersedia", min_value=1, value=5)
 
     if all(laba > 0 for laba in laba_per_unit) and total_operator_tersedia > 0 and total_mesin_tersedia > 0:
         x = [LpVariable(f"x{i+1}", lowBound=0, cat='Integer') for i in range(num_products)]
@@ -86,15 +110,26 @@ with tab1:
                 st.write(f"🔹 {product_names[i]} ➜ Jumlah Optimal: **{int(x[i].value())} unit**")
             st.write(f"💰 Total Keuntungan Maksimal: **{format_rupiah(model.objective.value())}**")
         else:
-            st.error("❌ Tidak ada solusi optimal ditemukan.")
+            st.error("❌ Tidak ada solusi optimal ditemukan. Periksa kembali input dan batasan operator/mesin.")
     else:
-        st.info("ℹ️ Masukkan data produk dan batasan mesin/operator untuk optimasi.")
+        st.info("ℹ️ Masukkan data produk, total operator dan mesin yang tersedia untuk melihat hasil optimasi.")
 
-# ---------- Tab 2: Perhitungan ----------
+# ---------- Tab 2: Perhitungan Produksi ----------
 with tab2:
-    st.subheader("📘 Perhitungan Produksi dan Efisiensi")
-    st.markdown(r"""...""")  # rumus tidak perlu diubah
-
+    st.subheader("📘 Rumus Perhitungan Produksi")
+    st.markdown(r"""
+    $$
+    \begin{array}{ll}
+    \text{Total Penjualan} &= \text{Harga Jual per Unit} \times \text{Jumlah Produksi} \\
+    \text{Total Keuntungan} &= \text{Laba per Unit} \times \text{Jumlah Produksi} \\
+    \text{Total Biaya Produksi} &= (\text{Harga Jual per Unit} - \text{Laba per Unit}) \times \text{Jumlah Produksi} \\
+    \text{Total Operator} &= \text{Jumlah Mesin} \times \text{Operator per Mesin} \\
+    \text{Efisiensi} &= \dfrac{\text{Total Keuntungan}}{\text{Total Operator}}
+    \end{array}
+    $$
+    """)
+    
+    st.subheader("📊 Perhitungan Produksi")
     df = pd.DataFrame({
         "Produk": product_names,
         "Jumlah Produksi": jumlah_produksi,
@@ -125,38 +160,49 @@ with tab2:
 
     st.dataframe(df.set_index("Produk").T.style.set_properties(**{'text-align': 'left'}))
 
-    st.subheader("🧾 Ringkasan Total Produksi")
     total_summary = {
         "Total Produksi": f"{int(total_all_produksi)} unit",
         "Total Penjualan": format_rupiah(total_all_penjualan),
         "Total Biaya Produksi": format_rupiah(total_all_biaya),
         "Total Keuntungan Bersih": format_rupiah(total_all_keuntungan),
         "Total Mesin Digunakan": f"{int(total_mesin)} unit",
-        "Total Operator Dibutuhkan": f"{int(total_operator)} orang",
-        "Kapasitas Mesin Tersedia": f"{int(total_mesin_tersedia)} unit",
-        "Kapasitas Operator Tersedia": f"{int(total_operator_tersedia)} orang",
-        "Sisa Mesin": f"{int(total_mesin_tersedia - total_mesin)} unit",
-        "Sisa Operator": f"{int(total_operator_tersedia - total_operator)} orang"
+        "Total Operator Dibutuhkan": f"{int(total_operator)} orang"
     }
     df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
+    st.subheader("🧾 Ringkasan Total Produksi")
     st.dataframe(df_total)
 
-    if total_operator > total_operator_tersedia:
-        st.warning("⚠️ Jumlah operator yang dibutuhkan melebihi kapasitas tersedia.")
+        # ⚙️ Tambahan: Evaluasi Kendala Kapasitas Operator & Mesin
+    st.subheader("⚖️ Evaluasi Kecukupan Mesin dan Operator")
+
+    st.markdown("### 🔍 Hasil Evaluasi:")
+
     if total_mesin > total_mesin_tersedia:
-        st.warning("⚠️ Jumlah mesin yang dibutuhkan melebihi kapasitas tersedia.")
+        st.error(f"❌ Mesin yang dibutuhkan (**{int(total_mesin)}**) melebihi kapasitas tersedia (**{total_mesin_tersedia}**) unit.")
+    else:
+        st.success(f"✅ Mesin cukup: {int(total_mesin)} digunakan dari kapasitas {total_mesin_tersedia} unit.")
+
+    if total_operator > total_operator_tersedia:
+        st.error(f"❌ Operator yang dibutuhkan (**{int(total_operator)}**) melebihi kapasitas tersedia (**{total_operator_tersedia}**) orang.")
+    else:
+        st.success(f"✅ Operator cukup: {int(total_operator)} digunakan dari kapasitas {total_operator_tersedia} orang.")
+
+    # Persentase penggunaan kapasitas
+    persen_mesin = (total_mesin / total_mesin_tersedia) * 100 if total_mesin_tersedia > 0 else 0
+    persen_operator = (total_operator / total_operator_tersedia) * 100 if total_operator_tersedia > 0 else 0
+
+    st.markdown(f"**📊 Persentase Penggunaan Mesin:** {persen_mesin:.1f}%")
+    st.markdown(f"**📊 Persentase Penggunaan Operator:** {persen_operator:.1f}%")
 
     df_prioritas = pd.DataFrame({
         "Produk": product_names,
         "Efisiensi": efisiensi_per_produk,
         "Total Keuntungan": total_keuntungan
     }).sort_values(by="Efisiensi", ascending=False).reset_index(drop=True)
-
     produk_efisien = df_prioritas.iloc[0]["Produk"]
     efisiensi_tertinggi = df_prioritas.iloc[0]["Efisiensi"]
-    st.success(f"✅ Produk paling efisien: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
+    st.success(f"✅ Produk yang paling efisien diproduksi: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
 
-    # Visualisasi
     st.subheader("📊 Diagram Perbandingan")
     x_pos = np.arange(len(product_names) + 1)
     width = 0.35
@@ -186,4 +232,3 @@ with tab2:
     ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
     fig.tight_layout()
     st.pyplot(fig)
-
