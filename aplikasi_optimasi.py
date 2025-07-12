@@ -78,15 +78,16 @@ with tab1:
     """)
     st.markdown("""
     **Keterangan:**
-
+    
     - \( Z \): Total keuntungan yang ingin dimaksimalkan  
-    - \( c₁ \): Keuntungan per unit produk ke-\( i \)  
-    - \( X₁ \): Jumlah unit produk ke-\( i \) yang diproduksi  
+    - \( c_i \): Keuntungan per unit produk ke-\( i \)  
+    - \( X_i \): Jumlah unit produk ke-\( i \) yang diproduksi  
     - \( a_{1i} \): Jumlah operator per unit produk ke-\( i \)  
     - \( b_1 \): Total operator yang tersedia  
     - \( a_{2i} \): Jumlah mesin per unit produk ke-\( i \)  
     - \( b_2 \): Total mesin yang tersedia
     """)
+
 
     total_operator_tersedia = st.number_input("Masukkan Total Operator yang Tersedia", min_value=1, value=10)
     total_mesin_tersedia = st.number_input("Masukkan Total Mesin yang Tersedia", min_value=1, value=5)
