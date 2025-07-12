@@ -89,6 +89,7 @@ with tab1:
     """)
 
 
+
     total_operator_tersedia = st.number_input("Masukkan Total Operator yang Tersedia", min_value=1, value=10)
     total_mesin_tersedia = st.number_input("Masukkan Total Mesin yang Tersedia", min_value=1, value=5)
 
