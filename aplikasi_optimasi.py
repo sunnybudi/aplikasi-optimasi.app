@@ -92,7 +92,7 @@ with tab1:
     $$
     """)
     
-        with st.expander("🧠 Cara Pengerjaan Optimasi Produksi"):
+    with st.expander("🧠 Cara Pengerjaan Optimasi Produksi"):
         st.markdown(r"""
         ### 🎯 Tujuan:
         Maksimalkan total keuntungan berdasarkan jumlah produk yang diproduksi, dengan batas jumlah **operator dan mesin** yang tersedia.
