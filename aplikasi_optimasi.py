@@ -76,22 +76,18 @@ with tab1:
     \end{aligned}
     $$
     """)
-    st.markdown(r"""
+    st.markdown("""
     **Keterangan:**
-    
-    $$
-    \begin{aligned}
-    Z & : \text{Total keuntungan yang ingin dimaksimalkan} \\
-    c_i & : \text{Keuntungan per unit produk ke-}i \\
-    X_i & : \text{Jumlah unit produk ke-}i\text{ yang diproduksi} \\
-    a_{1i} & : \text{Jumlah operator per unit produk ke-}i \\
-    b_1 & : \text{Total operator yang tersedia} \\
-    a_{2i} & : \text{Jumlah mesin per unit produk ke-}i \\
-    b_2 & : \text{Total mesin yang tersedia}
-    \end{aligned}
-    $$
+
+    - \( Z \): Total keuntungan yang ingin dimaksimalkan  
+    - \( c_i \): Keuntungan per unit produk ke-\( i \)  
+    - \( X_i \): Jumlah unit produk ke-\( i \) yang diproduksi  
+    - \( a_{1i} \): Jumlah operator per unit produk ke-\( i \)  
+    - \( b_1 \): Total operator yang tersedia  
+    - \( a_{2i} \): Jumlah mesin per unit produk ke-\( i \)  
+    - \( b_2 \): Total mesin yang tersedia
     """)
-    
+
     total_operator_tersedia = st.number_input("Masukkan Total Operator yang Tersedia", min_value=1, value=10)
     total_mesin_tersedia = st.number_input("Masukkan Total Mesin yang Tersedia", min_value=1, value=5)
 
@@ -107,7 +103,13 @@ with tab1:
         if LpStatus[model.status] == "Optimal":
             st.success("✅ Solusi optimal ditemukan:")
             for i in range(num_products):
-                st.write(f"🔹 {product_names[i]} ➜ Jumlah Optimal: **{int(x[i].value())} unit**")
+                jumlah_unit = int(x[i].value())
+                mesin_total = mesin_digunakan[i] * jumlah_unit
+                operator_total = mesin_total * operator_per_mesin[i]
+
+                st.write(f"🔹 {product_names[i]} ➜ Jumlah Optimal: **{jumlah_unit} unit**")
+                st.caption(f"Perhitungan: Mesin = {mesin_digunakan[i]} × {jumlah_unit} = {mesin_total}, Operator = {mesin_total} × {operator_per_mesin[i]} = {operator_total}")
+
             st.write(f"💰 Total Keuntungan Maksimal: **{format_rupiah(model.objective.value())}**")
         else:
             st.error("❌ Tidak ada solusi optimal ditemukan. Periksa kembali input dan batasan operator/mesin.")
