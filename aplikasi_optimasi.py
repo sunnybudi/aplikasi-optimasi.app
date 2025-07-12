@@ -80,8 +80,8 @@ with tab1:
     **Keterangan:**
 
     - \( Z \): Total keuntungan yang ingin dimaksimalkan  
-    - \( c_i \): Keuntungan per unit produk ke-\( i \)  
-    - \( X_i \): Jumlah unit produk ke-\( i \) yang diproduksi  
+    - \( c₁ \): Keuntungan per unit produk ke-\( i \)  
+    - \( X₁ \): Jumlah unit produk ke-\( i \) yang diproduksi  
     - \( a_{1i} \): Jumlah operator per unit produk ke-\( i \)  
     - \( b_1 \): Total operator yang tersedia  
     - \( a_{2i} \): Jumlah mesin per unit produk ke-\( i \)  
