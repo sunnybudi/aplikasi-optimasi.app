@@ -91,8 +91,56 @@ with tab1:
     \end{aligned}
     $$
     """)
+    
+        with st.expander("🧠 Cara Pengerjaan Optimasi Produksi"):
+        st.markdown(r"""
+        ### 🎯 Tujuan:
+        Maksimalkan total keuntungan berdasarkan jumlah produk yang diproduksi, dengan batas jumlah **operator dan mesin** yang tersedia.
 
+        ### 🔢 Langkah Penyelesaian:
+        1. **Input dari pengguna:**
+           - Jumlah produk, keuntungan/unit, mesin, operator per mesin
+           - Total operator & mesin yang tersedia
+        2. **Model Matematika:**
+            - Fungsi Objektif:
+              \[
+              Z = \sum_{i=1}^{n} c_i X_i
+              \]
+            - Kendala:
+              \[
+              \sum_{i=1}^{n} (a_{1i} X_i) \leq b_1 \quad \text{(Operator)}
+              \]
+              \[
+              \sum_{i=1}^{n} (a_{2i} X_i) \leq b_2 \quad \text{(Mesin)}
+              \]
+        3. **Interpretasi Variabel:**
+            - \( X_i \): Jumlah produk ke-\( i \)
+            - \( c_i \): Laba/unit produk ke-\( i \)
+            - \( a_{1i} = \text{Mesin}_i \times \text{Operator per Mesin}_i \)
+            - \( a_{2i} = \text{Mesin}_i \)
+            - \( b_1 \): Total operator tersedia
+            - \( b_2 \): Total mesin tersedia
+        4. **Solver:**
+            - Model dipecahkan menggunakan metode optimasi Linear Programming (library `PuLP`)
+            - Solusi optimal ditampilkan sebagai jumlah produk maksimal yang bisa diproduksi untuk keuntungan tertinggi.
 
+        ### 📝 Contoh Singkat:
+        Misal:  
+        - Produk A → Keuntungan: 10.000 | Mesin: 2 | Operator/Mesin: 1 → Operator per unit = 2  
+        - Produk B → Keuntungan: 15.000 | Mesin: 1 | Operator/Mesin: 2 → Operator per unit = 2  
+        Jika operator tersedia: 10 dan mesin tersedia: 5  
+        Maka dicari kombinasi terbaik \( X_1, X_2 \) agar:
+        \[
+        \text{Maksimalkan } Z = 10000X_1 + 15000X_2
+        \]
+        Dengan kendala:
+        \[
+        2X_1 + 2X_2 \leq 10 \quad \text{(Operator)}
+        \]
+        \[
+        2X_1 + 1X_2 \leq 5 \quad \text{(Mesin)}
+        \]
+        """)
 
     total_operator_tersedia = st.number_input("Masukkan Total Operator yang Tersedia", min_value=1, value=10)
     total_mesin_tersedia = st.number_input("Masukkan Total Mesin yang Tersedia", min_value=1, value=5)
