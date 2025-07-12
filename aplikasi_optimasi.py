@@ -95,3 +95,100 @@ with tab1:
             st.error("❌ Tidak ada solusi optimal ditemukan. Periksa kembali input dan batasan operator/mesin.")
     else:
         st.info("ℹ️ Masukkan data produk, total operator dan mesin yang tersedia untuk melihat hasil optimasi.")
+
+# ---------- Tab 2: Perhitungan Produksi ----------
+with tab2:
+    st.subheader("📘 Rumus Perhitungan Produksi")
+    st.markdown(r"""
+    $$
+    \begin{array}{ll}
+    \text{Total Penjualan} &= \text{Harga Jual per Unit} \times \text{Jumlah Produksi} \\
+    \text{Total Keuntungan} &= \text{Laba per Unit} \times \text{Jumlah Produksi} \\
+    \text{Total Biaya Produksi} &= (\text{Harga Jual per Unit} - \text{Laba per Unit}) \times \text{Jumlah Produksi} \\
+    \text{Total Operator} &= \text{Jumlah Mesin} \times \text{Operator per Mesin} \\
+    \text{Efisiensi} &= \dfrac{\text{Total Keuntungan}}{\text{Total Operator}}
+    \end{array}
+    $$
+    """)
+
+    df = pd.DataFrame({
+        "Produk": product_names,
+        "Jumlah Produksi": jumlah_produksi,
+        "Mesin Digunakan": mesin_digunakan,
+        "Operator/Mesin": operator_per_mesin,
+        "Total Operator": total_operator_per_produk,
+        "Harga Jual/unit": harga_jual,
+        "Keuntungan/unit": laba_per_unit,
+        "Total Penjualan": total_penjualan,
+        "Total Keuntungan": total_keuntungan,
+        "Total Biaya Produksi": total_biaya,
+        "Efisiensi (Rp/Operator)": efisiensi_per_produk
+    })
+
+    for col in df.columns:
+        if col in ["Total Penjualan", "Total Keuntungan", "Total Biaya Produksi"]:
+            df[col] = df[col].apply(lambda x: f"Rp {int(x):,}".replace(",", "."))
+        elif col in ["Harga Jual/unit", "Keuntungan/unit"]:
+            df[col] = df[col].apply(lambda x: f"Rp {int(x):,}".replace(",", ".") + " /unit")
+        elif col == "Efisiensi (Rp/Operator)":
+            df[col] = df[col].apply(lambda x: f"Rp {int(x):,}".replace(",", ".") + " /orang")
+        elif col in ["Jumlah Produksi", "Mesin Digunakan"]:
+            df[col] = df[col].apply(lambda x: f"{int(x)} unit")
+        elif col == "Total Operator":
+            df[col] = df[col].apply(lambda x: f"{int(x)} orang")
+        elif col == "Operator/Mesin":
+            df[col] = df[col].apply(lambda x: f"{int(x)} orang")
+
+    st.subheader("📊 Ringkasan Produksi")
+    st.dataframe(df.set_index("Produk").T.style.set_properties(**{'text-align': 'left'}))
+
+    total_summary = {
+        "Total Produksi": f"{int(total_all_produksi)} unit",
+        "Total Penjualan": format_rupiah(total_all_penjualan),
+        "Total Biaya Produksi": format_rupiah(total_all_biaya),
+        "Total Keuntungan Bersih": format_rupiah(total_all_keuntungan),
+        "Total Mesin Digunakan": f"{int(total_mesin)} unit",
+        "Total Operator Dibutuhkan": f"{int(total_operator)} orang"
+    }
+    df_total = pd.DataFrame(list(total_summary.items()), columns=["Keterangan", "Nilai"])
+    st.subheader("🧾 Ringkasan Total Produksi")
+    st.dataframe(df_total)
+
+    df_prioritas = pd.DataFrame({
+        "Produk": product_names,
+        "Efisiensi": efisiensi_per_produk,
+        "Total Keuntungan": total_keuntungan
+    }).sort_values(by="Efisiensi", ascending=False).reset_index(drop=True)
+    produk_efisien = df_prioritas.iloc[0]["Produk"]
+    efisiensi_tertinggi = df_prioritas.iloc[0]["Efisiensi"]
+    st.success(f"✅ Produk yang paling efisien diproduksi: **{produk_efisien}** (Efisiensi: {format_rupiah(efisiensi_tertinggi)} per operator)")
+
+    st.subheader("📊 Diagram Perbandingan")
+    x_pos = np.arange(len(product_names) + 1)
+    width = 0.35
+    fig, ax = plt.subplots()
+    all_product_names = product_names + ["Total Semua Produk"]
+    total_penjualan_all = total_penjualan + [total_all_penjualan]
+    total_keuntungan_all = total_keuntungan + [total_all_keuntungan]
+
+    bar1 = ax.bar(x_pos - width/2, [int(val) for val in total_keuntungan_all], width, label='Keuntungan', color='skyblue')
+    bar2 = ax.bar(x_pos + width/2, [int(val) for val in total_penjualan_all], width, label='Penjualan', color='lightgreen')
+
+    max_val = max([int(val) for val in total_penjualan_all + total_keuntungan_all])
+    ax.set_ylim(0, max_val * 1.3)
+    for bars in [bar1, bar2]:
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width() / 2,
+                    height + 0.01 * max_val,
+                    f"{int(height):,}".replace(",", "."),
+                    ha='center', va='bottom', fontsize=9)
+
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(all_product_names, rotation=0, fontsize=9)
+    ax.set_ylabel("Nilai (Rupiah)", fontsize=10)
+    ax.set_title("Perbandingan Penjualan dan Keuntungan per Produk", fontsize=11)
+    ax.legend(fontsize=9)
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(",", ".")))
+    fig.tight_layout()
+    st.pyplot(fig)
