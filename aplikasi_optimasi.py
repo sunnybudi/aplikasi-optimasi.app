@@ -63,8 +63,12 @@ total_operator = sum(total_operator_per_produk)
 total_all_produksi = sum(jumlah_produksi)
 
 # ---------- Validasi Batasan ----------
-st.subheader("📘 Studi Kasus")
-st.write("Tujuan aplikasi ini dibuat adalah untuk mengetahui optimasi sebuah produksi dengan keterbatasan sumberdaya seperti operator dan mesin)
+st.markdown("""
+#### Studi Kasus:
+Sebuah pabrik memiliki sumber daya terbatas pada mesin dan operator. Mereka ingin memproduksi beberapa jenis produk, masing-masing membutuhkan jumlah mesin dan operator tertentu. 
+Tujuan dari aplikasi ini adalah untuk membantu manajemen menentukan produk mana yang paling efisien diproduksi berdasarkan rasio **keuntungan per operator**, agar keuntungan maksimal tetap dapat dicapai meskipun sumber daya terbatas.
+""")
+
 st.subheader("🚦 Validasi Sumber Daya")
 if total_operator > total_operator_tersedia:
     st.error(f"❌ Total operator yang dibutuhkan ({total_operator} orang) MELEBIHI batas tersedia ({total_operator_tersedia} orang)")
