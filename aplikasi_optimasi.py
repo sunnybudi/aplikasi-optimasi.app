@@ -9,7 +9,7 @@ st.title("📊 Optimasi Efisiensi Produksi")
 
 # ---------- Input di Sidebar ----------
 with st.sidebar:
-    st.header("📦 Input Jumlah Produk")
+    st.header("📦 Input Produk")
     num_products = st.number_input("Jumlah Produk", min_value=2, value=2, step=1)
 
     st.header("📥 Input Data Produk")
