@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 st.set_page_config(page_title="Perhitungan Produksi", layout="wide")
-st.title("📊 Perhitungan Produksi - Mesin & Operator")
+st.title("📊 Optimasi Efisiensi Produksi")
 
 # ---------- Input di Sidebar ----------
 with st.sidebar:
@@ -63,6 +63,8 @@ total_operator = sum(total_operator_per_produk)
 total_all_produksi = sum(jumlah_produksi)
 
 # ---------- Validasi Batasan ----------
+st.subheader("📘 Studi Kasus")
+st.write("Tujuan aplikasi ini dibuat adalah untuk mengetahui optimasi sebuah produksi dengan keterbatasan sumberdaya seperti operator dan mesin)
 st.subheader("🚦 Validasi Sumber Daya")
 if total_operator > total_operator_tersedia:
     st.error(f"❌ Total operator yang dibutuhkan ({total_operator} orang) MELEBIHI batas tersedia ({total_operator_tersedia} orang)")
