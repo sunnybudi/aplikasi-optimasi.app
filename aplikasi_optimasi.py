@@ -37,7 +37,7 @@ with st.sidebar:
         mesin_digunakan.append(mesin)
         operator_per_mesin.append(op_mesin)
 
-    st.header("⚙️ Batasan Sumber Daya")
+    st.header("⚙️ Sumber Daya")
     total_operator_tersedia = st.number_input("Jumlah Operator Tersedia", min_value=1, value=10)
     total_mesin_tersedia = st.number_input("Jumlah Mesin Tersedia", min_value=1, value=5)
 
@@ -64,7 +64,7 @@ total_all_produksi = sum(jumlah_produksi)
 
 # ---------- Validasi Batasan ----------
 st.markdown("""
-#### Studi Kasus:
+#### ⚙️ Studi Kasus:
 Sebuah pabrik memiliki sumber daya terbatas pada mesin dan operator. Mereka ingin memproduksi beberapa jenis produk, masing-masing membutuhkan jumlah mesin dan operator tertentu. 
 Tujuan dari aplikasi ini adalah untuk membantu manajemen menentukan produk mana yang paling efisien diproduksi berdasarkan rasio **keuntungan per operator**, agar keuntungan maksimal tetap dapat dicapai meskipun sumber daya terbatas.
 """)
